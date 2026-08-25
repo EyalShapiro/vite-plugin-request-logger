@@ -6,7 +6,7 @@ import { redact } from './utils/redact';
 import { type AnsiColor, ANSI_COLORS, METHOD_COLORS, stripAnsi } from './utils/AnsiColor';
 
 export type { LoggerOptions, LoggerFormat };
-const PLUGIN_NAME = 'vite-plugin-api-logger';
+const PLUGIN_NAME = 'vite-plugin-request-logger';
 type StatusType = number | `${number}`;
 
 /**
@@ -21,6 +21,17 @@ function statusColor(statusCode: StatusType): AnsiColor {
   if (status >= 400) return ANSI_COLORS.yellow;
   if (status >= 300) return ANSI_COLORS.cyan;
   return ANSI_COLORS.green;
+}
+/**
+ * Truncates a formatted body string to the given maximum length
+ * and appends a `[truncated]` indicator.
+ *
+ * @param formattedBody - The full body string to truncate.
+ * @param maxLength     - Maximum number of characters to keep.
+ * @returns The truncated string with a trailing `[truncated]` marker.
+ */
+function truncated(formattedBody: string, maxLength: number): string {
+  return formattedBody.slice(0, maxLength) + '\n  ... [truncated]';
 }
 
 /**
@@ -48,12 +59,15 @@ function formatMessage(
 
   switch (format) {
     case 'dev': {
+      // Plain-text fallback when colors are disabled
       if (!colors) {
         return `[${timestamp}] ${method.padEnd(6)} ${url} ${status} +${responseTimeMs}ms`;
       }
 
+      // Resolve the ANSI color for the HTTP method (falls back to reset for unknown methods)
       const methodColor = (METHOD_COLORS as Record<string, AnsiColor>)[method] ?? ANSI_COLORS.reset;
 
+      // Build a colorized log line: [timestamp] METHOD url status +Xms
       return (
         `${ANSI_COLORS.dim}[${timestamp}]${ANSI_COLORS.reset} ` +
         `${methodColor}${ANSI_COLORS.bold}${method.padEnd(6)}${ANSI_COLORS.reset} ` +
@@ -62,8 +76,10 @@ function formatMessage(
         `${ANSI_COLORS.dim}+${responseTimeMs}ms${ANSI_COLORS.reset}`
       );
     }
+    // Minimal one-liner: METHOD url status - Xms
     case 'tiny':
       return `${method} ${url} ${status} - ${responseTimeMs} ms`;
+    // 'short' and 'combined' share the same compact format
     default:
       return `${method} ${url} ${status} ${responseTimeMs} ms`;
   }
@@ -148,6 +164,7 @@ export function viteRequestLogger(userOptions: LoggerOptions = {}): Plugin {
 
   return {
     name: PLUGIN_NAME,
+    // Run before other plugins so the middleware is registered early
     enforce: 'pre',
 
     configureServer(server: ViteDevServer) {
@@ -175,7 +192,9 @@ export function viteRequestLogger(userOptions: LoggerOptions = {}): Plugin {
             });
           }
 
-          // Patch res.end to capture the response status at the point of send
+          // ── Monkey-patch res.end ─────────────────────────────────────────────
+          // By wrapping res.end we capture the exact moment the response is sent,
+          // which gives us the final status code and accurate response timing.
           const originalEnd = res.end;
 
           res.end = function (...args: unknown[]) {
@@ -206,11 +225,13 @@ export function viteRequestLogger(userOptions: LoggerOptions = {}): Plugin {
               if (options.logBody && rawBody.trim()) {
                 let formattedBody = rawBody;
                 try {
+                  // Attempt to parse as JSON → redact sensitive keys → pretty-print
                   const parsed = JSON.parse(rawBody);
                   const redactedBody = redact(parsed, options.redactKeys);
                   formattedBody = JSON.stringify(redactedBody, null, 2);
                 } catch {
-                  // Fallback: redact using regex for non-JSON bodies
+                  // Body is not valid JSON — fall back to regex-based redaction
+                  // so that key-value patterns like "password":"value" are still redacted
                   if (options.redactKeys && options.redactKeys.length > 0) {
                     for (const key of options.redactKeys) {
                       const regex = new RegExp(`("${key}"\\s*:\\s*")[^"]*(")`, 'gi');
@@ -219,17 +240,18 @@ export function viteRequestLogger(userOptions: LoggerOptions = {}): Plugin {
                   }
                 }
 
+                // Prevent flooding the terminal with very large payloads
                 if (formattedBody.length > options.maxBodyLength) {
-                  formattedBody =
-                    formattedBody.slice(0, options.maxBodyLength) + '\n  ... [truncated]';
+                  formattedBody = truncated(formattedBody, options.maxBodyLength);
                 }
 
                 logMessage += `\n  Body: ${formattedBody}`;
               }
 
+              // Print the final log message to the terminal
               console.info(logMessage);
 
-              // Fire-and-forget async file write (non-blocking)
+              // Optionally persist to a log file (async, non-blocking)
               if (options.logToFile) {
                 void writeLogToFile(options.logToFile, logMessage);
               }
@@ -239,6 +261,7 @@ export function viteRequestLogger(userOptions: LoggerOptions = {}): Plugin {
               }
             }
 
+            // Invoke the original res.end so the response is actually sent
             return originalEnd.apply(this, args as never);
           };
         } catch (err) {
