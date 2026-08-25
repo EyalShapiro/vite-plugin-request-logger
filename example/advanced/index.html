@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vite-plugin-request-logger — Advanced Example</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background: #0f0f11;
+        color: #e0e0e0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem 1rem;
+      }
+
+      h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #a78bfa;
+        margin-bottom: 0.25rem;
+      }
+
+      p.subtitle {
+        font-size: 0.9rem;
+        color: #6b7280;
+        margin-bottom: 2rem;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0.75rem;
+        width: 100%;
+        max-width: 700px;
+        margin-bottom: 2rem;
+      }
+
+      button {
+        padding: 0.65rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+          opacity 0.15s,
+          transform 0.1s;
+        color: #fff;
+      }
+
+      button:active {
+        transform: scale(0.97);
+      }
+
+      button:hover {
+        opacity: 0.85;
+      }
+
+      .btn-get {
+        background: #16a34a;
+      }
+      .btn-post {
+        background: #0891b2;
+      }
+      .btn-put {
+        background: #d97706;
+      }
+      .btn-patch {
+        background: #7c3aed;
+      }
+      .btn-delete {
+        background: #dc2626;
+      }
+
+      #log {
+        width: 100%;
+        max-width: 700px;
+        background: #1a1a1e;
+        border: 1px solid #2d2d33;
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        font-family: 'Fira Code', 'Cascadia Code', monospace;
+        font-size: 0.82rem;
+        min-height: 200px;
+        max-height: 400px;
+        overflow-y: auto;
+        line-height: 1.6;
+      }
+
+      #log p {
+        padding: 2px 0;
+        border-bottom: 1px solid #23232a;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+
+      #log .entry-get {
+        color: #4ade80;
+      }
+      #log .entry-post {
+        color: #38bdf8;
+      }
+      #log .entry-put {
+        color: #fbbf24;
+      }
+      #log .entry-patch {
+        color: #c084fc;
+      }
+      #log .entry-delete {
+        color: #f87171;
+      }
+      #log .entry-error {
+        color: #fb923c;
+      }
+      #log .placeholder {
+        color: #4b5563;
+        font-style: italic;
+      }
+
+      .log-header {
+        width: 100%;
+        max-width: 700px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+      }
+
+      .log-header span {
+        font-size: 0.8rem;
+        color: #6b7280;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .clear-btn {
+        background: none;
+        border: 1px solid #3f3f46;
+        color: #9ca3af;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .clear-btn:hover {
+        background: #27272a;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>vite-plugin-request-logger</h1>
+    <p class="subtitle">Advanced Example — All options enabled. Watch your terminal for logs.</p>
+
+    <div class="grid">
+      <button class="btn-get" id="btn-get">GET /api/users</button>
+      <button class="btn-post" id="btn-post">POST /api/users</button>
+      <button class="btn-put" id="btn-put">PUT /api/users/1</button>
+      <button class="btn-patch" id="btn-patch">PATCH /api/users/1</button>
+      <button class="btn-delete" id="btn-delete">DELETE /api/users/1</button>
+      <button class="btn-post" id="btn-login">POST /api/login (redacted)</button>
+      <button class="btn-get" id="btn-health">GET /api/health</button>
+      <button class="btn-get" id="btn-ignored">GET /public/logo.png (ignored)</button>
+    </div>
+
+    <div class="log-header">
+      <span>📟 Browser log</span>
+      <button class="clear-btn" id="btn-clear">Clear</button>
+    </div>
+    <div id="log">
+      <p class="placeholder">
+        Click a button to fire a request — logs appear here and in the terminal.
+      </p>
+    </div>
+
+    <script type="module" src="/main.ts"></script>
+  </body>
+</html>

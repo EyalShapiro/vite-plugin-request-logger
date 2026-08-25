@@ -1,0 +1,16 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  "typescript.tsdk": "node_modules/typescript/lib",
+
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "YoavBls.pretty-ts-errors",
+    "ms-vscode.vscode-typescript-next"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "advanced-example",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Advanced example for vite-plugin-request-logger using Vite 5 (older, widely-compatible version).",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.4.19"
+  }
+}
