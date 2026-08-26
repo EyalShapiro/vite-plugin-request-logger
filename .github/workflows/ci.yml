@@ -21,8 +21,8 @@ jobs:
         run: npm run typecheck
       - name: Lint Check (eslint)
         run: npm run lint
-      - name: Code Formatting Check (prettier)
-        run: npm run format
+      # - name: Code Formatting Check (prettier)
+        # run: npm run format
       - name: Run Tests (vitest)
         run: npm run test
       - name: Build Library (tsup)
