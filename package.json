@@ -5,6 +5,14 @@
   "type": "module",
   "author": "Eyal Shapiro",
   "license": "MIT",
+  "homepage": "https://www.npmjs.com/package/vite-plugin-request-logger",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EyalShapiro/vite-plugin-request-logger.git"
+  },
+  "bugs": {
+    "url": "https://github.com/EyalShapiro/vite-plugin-request-logger/issues"
+  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -33,12 +41,12 @@
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run build && npm run test",
     "example:advanced": "cd example/advanced && npm run dev",
-    "version:patch": "npm version patch && npm run publish:all",
-    "version:minor": "npm version minor && npm run publish:all",
-    "version:major": "npm version major && npm run publish:all",
-    "publish:all": "npm run build && npm run test && npm publish && yarn publish && pnpm publish"
+    "prepublishOnly": "npm run build && npm run test",
+    "publish:all": "npm publish",
+    "version:patch": "npm run prepublishOnly && npm version patch && npm run publish:all",
+    "version:minor": "npm run prepublishOnly && npm version minor && npm run publish:all",
+    "version:major": "npm run prepublishOnly && npm version major && npm run publish:all"
   },
   "peerDependencies": {
     "vite": ">=5.0.0"
