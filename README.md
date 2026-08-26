@@ -34,17 +34,29 @@ Intercepts requests inside the Vite dev-server middleware chain and prints each 
 ---
 
 ## Installation
-
+ 
+[![View on npm](https://img.shields.io/badge/View_on-npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)](https://www.npmjs.com/package/vite-plugin-request-logger)
+ ### npm https://www.npmjs.com/package/vite-plugin-request-logger
 ```bash
-# npm
 npm install -D vite-plugin-request-logger
-
-# pnpm
+```
+ 
+[![View on npmx](https://img.shields.io/badge/View_on-npmx-F69220?style=for-the-badge)](https://npmx.dev/package/vite-plugin-request-logger)
+### pnpm https://npmx.dev/package/vite-plugin-request-logger
+ 
+```bash
 pnpm add -D vite-plugin-request-logger
-
-# yarn
+```
+ 
+[![View on Yarn](https://img.shields.io/badge/View_on-Yarn-2C8EBB?style=for-the-badge&logo=yarn&logoColor=white)](https://yarnpkg.com/package?q=vite-plugin-request-logger&name=vite-plugin-request-logger)
+### yarn https://yarnpkg.com/package?q=vite-plugin-request-logger&name=vite-plugin-request-logger
+```bash
 yarn add -D vite-plugin-request-logger
-
+```
+ 
+[![View on npm](https://img.shields.io/badge/View_on-npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)](https://www.npmjs.com/package/vite-plugin-request-logger)
+ 
+```bash
 # bun
 bun add -D vite-plugin-request-logger
 ```
@@ -359,7 +371,7 @@ npm run dev
 # Open http://localhost:3000
 ```
 
-### `example/advanced` — All options · Vite 5
+### [`example/advanced`](https://github.com/EyalShapiro/vite-plugin-request-logger/tree/main/example/advanced) — All options · Vite 5
 
 Demonstrates every plugin option with an interactive browser UI. Uses **Vite 5** for maximum compatibility with older projects.
 
@@ -379,7 +391,8 @@ Features demonstrated:
 - File logging → `logs/requests.log`
 - Requests outside `/api` are silently ignored
 
-### `example/react-example` — React + Vite 8
+
+### [`example/react-example`](https://github.com/EyalShapiro/vite-plugin-request-logger/tree/main/example/react-example) — React + Vite 8
 
 A full React app with a click-to-fire UI, random status codes, and all plugin features.
 
@@ -393,7 +406,6 @@ npm run dev
 Or run from the repo root:
 
 ```bash
-npm run example:base      # minimal example  (port 3000)
 npm run example:advanced  # advanced example (port 3001, Vite 5)
 ```
 
@@ -421,8 +433,10 @@ npm run lint
 npm run format:fix
 ```
 
+Source code and issue tracker: **[github.com/EyalShapiro/vite-plugin-request-logger](https://github.com/EyalShapiro/vite-plugin-request-logger)**
+
 ---
 
 ## License
 
-[MIT](./LICENSE) © [Eyal Shapiro](https://github.com/Eyal)
+[MIT](./LICENSE) © [Eyal Shapiro](https://github.com/EyalShapiro)
