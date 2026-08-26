@@ -1,11 +1,9 @@
 name: CI Quality Checks & Build
-
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, dev, prod]
   pull_request:
-    branches: [main, master]
-
+    branches: [main, master, dev, prod]
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -13,31 +11,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 8
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
 
       - name: Type Check (tsc)
-        run: pnpm run typecheck
+        run: npm run typecheck
 
       - name: Lint Check (eslint)
-        run: pnpm run lint
+        run: npm run lint
 
       - name: Code Formatting Check (prettier)
-        run: pnpm run format
+        run: npm run format
 
       - name: Run Tests (vitest)
-        run: pnpm run test
+        run: npm run test
 
       - name: Build Library (tsup)
-        run: pnpm run build
+        run: npm run build
