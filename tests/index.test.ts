@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import viteRequestLogger from '../lib/index';
 import * as fs from 'fs';
@@ -540,12 +541,12 @@ describe('vite-plugin-request-logger', () => {
     });
 
     it('should preserve this context binding for custom logger instances', () => {
-      let receivedThis: any = null;
+      let receivedThis: unknown = null;
 
       const customLoggerObj = {
         name: 'MyPinoLogger',
-        info(msg: string) {
-          receivedThis = this;
+        info(_msg: string) {
+          receivedThis = customLoggerObj;
         },
       };
 
