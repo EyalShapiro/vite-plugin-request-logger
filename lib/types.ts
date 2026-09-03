@@ -1,3 +1,5 @@
+import type { IncomingMessage, ServerResponse } from 'http';
+
 /**
  * Supported log format presets, similar to Morgan.
  *
@@ -9,6 +11,25 @@
  * | `combined` | `POST /api/users 201 12.34 ms` _(alias for short)_  |
  */
 export type LoggerFormat = 'dev' | 'tiny' | 'combined' | 'short';
+
+export type LogFunction = (message: string, ...args: unknown[]) => void;
+
+/**
+ * Custom logger interface compatible with Winston, Pino, Bunyan, or custom objects.
+ */
+export interface CustomLogger {
+  info?: LogFunction;
+  error?: LogFunction;
+  warn?: LogFunction;
+  debug?: LogFunction;
+  log?: LogFunction;
+}
+
+/**
+ * Logger option accepted by the plugin.
+ * Can be a `CustomLogger` instance, or built-in presets `'console'` / `'silent'`.
+ */
+export type LoggerOption = CustomLogger | 'console' | 'silent';
 
 /**
  * Configuration options for `vite-plugin-request-logger`.
@@ -33,12 +54,44 @@ export interface LoggerOptions {
    * This is the primary way to avoid logging Vite's internal HMR, asset, and source-file requests.
    * Set to `'/'` to log all requests.
    *
+   * When `filter` is provided, `filter` takes precedence over `prefix`.
+   *
    * @default '/api'
    * @example '/api'        // logs only /api/* requests
    * @example '/trpc'       // logs only /trpc/* requests
    * @example '/'           // logs everything
    */
   prefix?: string;
+
+  /**
+   * Custom filter function — returns `true` to log the request, or `false` to ignore it.
+   *
+   * When provided, this option takes precedence over `prefix`.
+   *
+   * @example
+   * filter: (req) => req.url?.startsWith('/api') || req.url?.startsWith('/trpc')
+   */
+  filter?: (req: IncomingMessage) => boolean;
+
+  /**
+   * Optional custom callback to compute a message suffix for each logged line.
+   *
+   * When the function returns a non-empty string, it is appended to the end of the log line.
+   * Return `undefined` or an empty string to leave the log line unchanged.
+   *
+   * @example
+   * customMsg: (req, res, responseTimeMs) => responseTimeMs > 500 ? '⚠️ SLOW' : undefined
+   */
+  customMsg?: (req: IncomingMessage, res: ServerResponse, responseTimeMs: number) => string | undefined;
+
+  /**
+   * Custom logger instance (e.g., Pino, Winston, custom object) or preset (`'console'` | `'silent'`).
+   *
+   * @default 'console'
+   * @example pinoLogger
+   * @example 'silent'
+   */
+  logger?: LoggerOption;
 
   /**
    * Log format preset.

@@ -1,13 +1,60 @@
 import { appendFile } from 'node:fs/promises';
-import type { Plugin, ViteDevServer } from 'vite';
 import type { IncomingMessage, ServerResponse } from 'http';
-import type { LoggerOptions, LoggerFormat } from './types';
+
+// Minimal structural types for Vite server/plugin — avoids cross-version
+// type conflicts when consumers use a different Vite major than the plugin's
+// devDependency (e.g. Vite 5 in the example, Vite 8 in the root).
+interface MinimalConnect {
+  use(handler: (req: IncomingMessage, res: ServerResponse, next: () => void) => void): void;
+}
+interface MinimalViteServer {
+  middlewares: MinimalConnect;
+}
+interface VitePluginObject {
+  name: string;
+  enforce?: 'pre' | 'post';
+  configureServer?: (server: MinimalViteServer) => void | (() => void);
+}
+import type {
+  LoggerOptions,
+  LoggerFormat,
+  LoggerOption,
+  LogFunction,
+  CustomLogger,
+} from './types';
 import { redact } from './utils/redact';
 import { type AnsiColor, ANSI_COLORS, METHOD_COLORS, stripAnsi } from './utils/AnsiColor';
 
-export type { LoggerOptions, LoggerFormat };
+export type { LoggerOptions, LoggerFormat, LoggerOption, LogFunction, CustomLogger };
 const PLUGIN_NAME = 'vite-plugin-request-logger';
 type StatusType = number | `${number}`;
+
+const noop: LogFunction = () => {};
+
+/**
+ * Resolves a LoggerOption into bound info and error functions.
+ * Handles 'silent', 'console', and custom objects (with Pino/Winston .bind context preservation).
+ */
+function resolveLogger(option?: LoggerOption): { info: LogFunction; error: LogFunction } {
+  if (option === 'silent') {
+    return { info: noop, error: noop };
+  }
+
+  if (typeof option === 'object' && option !== null) {
+    const infoFn = option.info ?? option.log ?? console.info;
+    const errorFn = option.error ?? option.log ?? console.error;
+
+    return {
+      info: infoFn.bind(option),
+      error: errorFn.bind(option),
+    };
+  }
+
+  return {
+    info: console.info.bind(console),
+    error: console.error.bind(console),
+  };
+}
 
 /**
  * Returns the color for an HTTP status code.
@@ -20,8 +67,10 @@ function statusColor(statusCode: StatusType): AnsiColor {
   if (status >= 500) return ANSI_COLORS.red;
   if (status >= 400) return ANSI_COLORS.yellow;
   if (status >= 300) return ANSI_COLORS.cyan;
-  return ANSI_COLORS.green;
+  if (status >= 200) return ANSI_COLORS.green;
+  return ANSI_COLORS.reset;
 }
+
 /**
  * Truncates a formatted body string to the given maximum length
  * and appends a `[truncated]` indicator.
@@ -91,14 +140,19 @@ function formatMessage(
  *
  * @param filePath - Absolute or relative path to the log file.
  * @param message  - The log message to append (may contain ANSI codes).
+ * @param logError - Optional error logger function.
  */
-async function writeLogToFile(filePath: string, message: string): Promise<void> {
+async function writeLogToFile(
+  filePath: string,
+  message: string,
+  logError: LogFunction = console.error.bind(console),
+): Promise<void> {
   if (!message) return;
   const cleanLine = stripAnsi(message) + '\n';
   try {
     await appendFile(filePath, cleanLine, 'utf-8');
   } catch (error) {
-    console.error(`[vite-plugin-request-logger] Failed to write log file "${filePath}":`, error);
+    logError(`[vite-plugin-request-logger] Failed to write log file "${filePath}":`, error);
   }
 }
 
@@ -110,8 +164,8 @@ async function writeLogToFile(filePath: string, message: string): Promise<void> 
  * Optionally logs request headers and body, with automatic redaction of
  * sensitive fields.
  *
- * Only requests whose URL starts with `prefix` (default: `'/api'`) are logged,
- * so Vite's internal HMR and asset requests are ignored automatically.
+ * Only requests whose URL starts with `prefix` (default: `'/api'`) or match
+ * the custom `filter` function are logged, ignoring Vite's internal HMR and assets.
  *
  * @param userOptions - Optional configuration. All fields have sensible defaults.
  * @returns A Vite `Plugin` object to include in `plugins: []`.
@@ -134,10 +188,18 @@ async function writeLogToFile(filePath: string, message: string): Promise<void> 
  * });
  * ```
  */
-export function viteRequestLogger(userOptions: LoggerOptions = {}): Plugin {
+export function viteRequestLogger(userOptions: LoggerOptions = {}): VitePluginObject {
   const options = {
-    /** URL prefix — only requests starting with this path will be logged. */
+    /** URL prefix — only requests starting with this path will be logged (when filter is not provided). */
     prefix: '/api',
+    /** Custom filter function. If provided, overrides prefix filtering. */
+    filter: undefined as ((req: IncomingMessage) => boolean) | undefined,
+    /** Custom message callback appended to log lines. */
+    customMsg: undefined as
+      | ((req: IncomingMessage, res: ServerResponse, responseTimeMs: number) => string | undefined)
+      | undefined,
+    /** Custom logger instance or preset ('console' | 'silent'). */
+    logger: 'console' as LoggerOption,
     /** Log format preset. */
     format: 'dev' as LoggerFormat,
     /** Log request bodies for POST/PUT/PATCH/DELETE. */
@@ -159,6 +221,8 @@ export function viteRequestLogger(userOptions: LoggerOptions = {}): Plugin {
     ...userOptions,
   };
 
+  const logger = resolveLogger(options.logger);
+
   // Normalize prefix to always start with '/'
   const normalizedPrefix = options.prefix.startsWith('/') ? options.prefix : `/${options.prefix}`;
 
@@ -167,13 +231,26 @@ export function viteRequestLogger(userOptions: LoggerOptions = {}): Plugin {
     // Run before other plugins so the middleware is registered early
     enforce: 'pre',
 
-    configureServer(server: ViteDevServer) {
+    configureServer(server: MinimalViteServer) {
       server.middlewares.use((req: IncomingMessage, res: ServerResponse, next: () => void) => {
         try {
           const url = req.url || '/';
 
-          // Only log requests that start with the configured prefix (e.g. /api)
-          if (!url.startsWith(normalizedPrefix)) {
+          let shouldLog = false;
+          try {
+            if (options.filter) {
+              shouldLog = Boolean(options.filter(req));
+            } else {
+              shouldLog = url.startsWith(normalizedPrefix);
+            }
+          } catch (filterErr) {
+            if (!options.silentOnError) {
+              logger.error('[vite-plugin-request-logger] Custom filter function threw an error:', filterErr);
+            }
+            shouldLog = false;
+          }
+
+          if (!shouldLog) {
             return next();
           }
 
@@ -212,6 +289,20 @@ export function viteRequestLogger(userOptions: LoggerOptions = {}): Plugin {
                 options.timezone,
               );
 
+              // Append custom message suffix if customMsg callback is provided
+              if (options.customMsg) {
+                try {
+                  const custom = options.customMsg(req, res, parseFloat(duration));
+                  if (custom && typeof custom === 'string' && custom.trim()) {
+                    logMessage += ` ${custom.trim()}`;
+                  }
+                } catch (customMsgErr) {
+                  if (!options.silentOnError) {
+                    logger.error('[vite-plugin-request-logger] customMsg callback threw an error:', customMsgErr);
+                  }
+                }
+              }
+
               // Append redacted headers if enabled
               if (options.logHeaders) {
                 let headers = req.headers;
@@ -248,16 +339,16 @@ export function viteRequestLogger(userOptions: LoggerOptions = {}): Plugin {
                 logMessage += `\n  Body: ${formattedBody}`;
               }
 
-              // Print the final log message to the terminal
-              console.info(logMessage);
+              // Print the final log message using resolved logger
+              logger.info(logMessage);
 
               // Optionally persist to a log file (async, non-blocking)
               if (options.logToFile) {
-                void writeLogToFile(options.logToFile, logMessage);
+                void writeLogToFile(options.logToFile, logMessage, logger.error);
               }
             } catch (error) {
               if (!options.silentOnError) {
-                console.error('[vite-plugin-request-logger] Logging failed:', error);
+                logger.error('[vite-plugin-request-logger] Logging failed:', error);
               }
             }
 
@@ -266,7 +357,7 @@ export function viteRequestLogger(userOptions: LoggerOptions = {}): Plugin {
           };
         } catch (err) {
           if (!options.silentOnError) {
-            console.error('[vite-plugin-request-logger] Middleware error:', err);
+            logger.error('[vite-plugin-request-logger] Middleware error:', err);
           }
         }
 
@@ -276,3 +367,4 @@ export function viteRequestLogger(userOptions: LoggerOptions = {}): Plugin {
   };
 }
 export default viteRequestLogger;
+

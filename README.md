@@ -34,28 +34,33 @@ Intercepts requests inside the Vite dev-server middleware chain and prints each 
 ---
 
 ## Installation
- 
+
 [![View on npm](https://img.shields.io/badge/View_on-npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)](https://www.npmjs.com/package/vite-plugin-request-logger)
- ### npm https://www.npmjs.com/package/vite-plugin-request-logger
+
+### npm https://www.npmjs.com/package/vite-plugin-request-logger
+
 ```bash
 npm install -D vite-plugin-request-logger
 ```
- 
+
 [![View on npmx](https://img.shields.io/badge/View_on-npmx-F69220?style=for-the-badge)](https://npmx.dev/package/vite-plugin-request-logger)
+
 ### pnpm https://npmx.dev/package/vite-plugin-request-logger
- 
+
 ```bash
 pnpm add -D vite-plugin-request-logger
 ```
- 
+
 [![View on Yarn](https://img.shields.io/badge/View_on-Yarn-2C8EBB?style=for-the-badge&logo=yarn&logoColor=white)](https://yarnpkg.com/package?q=vite-plugin-request-logger&name=vite-plugin-request-logger)
+
 ### yarn https://yarnpkg.com/package?q=vite-plugin-request-logger&name=vite-plugin-request-logger
+
 ```bash
 yarn add -D vite-plugin-request-logger
 ```
- 
+
 [![View on npm](https://img.shields.io/badge/View_on-npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)](https://www.npmjs.com/package/vite-plugin-request-logger)
- 
+
 ```bash
 # bun
 bun add -D vite-plugin-request-logger
@@ -103,6 +108,9 @@ viteRequestLogger({
 | Option          | Type                                       | Default                         | Description                                                             |
 | :-------------- | :----------------------------------------- | :------------------------------ | :---------------------------------------------------------------------- |
 | `prefix`        | `string`                                   | `'/api'`                        | Only log requests whose URL starts with this prefix. Use `'/'` for all. |
+| `filter`        | `(req) => boolean`                         | `undefined`                     | Custom filter function (overrides `prefix` when provided).              |
+| `customMsg`     | `(req, res, responseTimeMs) => string`     | `undefined`                     | Callback returning a custom suffix string to append to log lines.       |
+| `logger`        | `CustomLogger \| 'console' \| 'silent'`    | `'console'`                     | Custom logger instance (e.g. Pino, Winston) or preset (`'silent'`).     |
 | `format`        | `'dev' \| 'tiny' \| 'short' \| 'combined'` | `'dev'`                         | Log line format preset.                                                 |
 | `logBody`       | `boolean`                                  | `true`                          | Log request body for POST / PUT / PATCH / DELETE.                       |
 | `maxBodyLength` | `number`                                   | `1000`                          | Max characters of body to display before truncating.                    |
@@ -286,10 +294,80 @@ export default defineConfig({
 });
 ```
 
-### Multiple prefixes (log both `/api` and `/trpc`)
+### Custom filtering (multiple prefixes or regex)
 
-The plugin doesn't natively support multiple prefixes, but you can add it twice
-with different options:
+You can pass a custom `filter` function to log requests matching multiple endpoints, regexes, or exclude specific routes:
+
+```ts
+viteRequestLogger({
+  filter: (req) =>
+    req.url?.startsWith('/api') ||
+    req.url?.startsWith('/trpc') ||
+    (req.url?.includes('/graphql') ?? false),
+});
+```
+
+### Custom message suffix (`customMsg`)
+
+Annotate log lines with custom labels (e.g. tagging slow requests or environment headers):
+
+```ts
+viteRequestLogger({
+  customMsg: (req, res, responseTimeMs) => (responseTimeMs > 500 ? '⚠️ SLOW' : undefined),
+});
+```
+
+### Custom Logger (Pino / Winston / Silent)
+
+Pass any external logger instance (e.g. Pino, Winston) or the `'silent'` preset directly:
+
+#### With Pino
+
+```ts
+import pino from 'pino';
+import viteRequestLogger from 'vite-plugin-request-logger';
+
+const pinoLogger = pino();
+
+export default defineConfig({
+  plugins: [
+    viteRequestLogger({
+      logger: pinoLogger,
+    }),
+  ],
+});
+```
+
+#### With Winston
+
+```ts
+import winston from 'winston';
+import viteRequestLogger from 'vite-plugin-request-logger';
+
+const winstonLogger = winston.createLogger({
+  transports: [new winston.transports.Console()],
+});
+
+export default defineConfig({
+  plugins: [
+    viteRequestLogger({
+      logger: winstonLogger,
+    }),
+  ],
+});
+```
+
+#### Silent Mode (suppress all console output)
+
+```ts
+viteRequestLogger({
+  logger: 'silent',
+});
+```
+
+### Multiple prefixes (alternative)
+
+You can also instantiate the plugin twice with different prefixes:
 
 ```ts
 // vite.config.ts
@@ -391,23 +469,32 @@ Features demonstrated:
 - File logging → `logs/requests.log`
 - Requests outside `/api` are silently ignored
 
+### [`example/custom-features`](https://github.com/EyalShapiro/vite-plugin-request-logger/tree/main/example/custom-features) — Filter, Custom Message & Custom Logger
 
-### [`example/react-example`](https://github.com/EyalShapiro/vite-plugin-request-logger/tree/main/example/react-example) — React + Vite 8
-
-A full React app with a click-to-fire UI, random status codes, and all plugin features.
+Demonstrates custom `filter` functions, `customMsg` status annotations, and external `logger` instances (Pino/Winston/Silent).
 
 ```bash
-cd example/react-example
+cd example/custom-features
 npm install
 npm run dev
-# Open http://localhost:3000
+# Open http://localhost:3002
 ```
 
-Or run from the repo root:
+Or run directly from root:
 
 ```bash
+npm run example:custom    # custom features example (port 3002)
 npm run example:advanced  # advanced example (port 3001, Vite 5)
 ```
+
+---
+
+## Automated Publishing & Release
+
+Releases are published automatically to [npm](https://www.npmjs.com/package/vite-plugin-request-logger) via GitHub Actions when a new GitHub Release is created.
+
+- **Workflow File:** [`.github/workflows/publish.yml`](./.github/workflows/publish.yml)
+- **Changelog & Releases:** [github.com/EyalShapiro/vite-plugin-request-logger/releases](https://github.com/EyalShapiro/vite-plugin-request-logger/releases)
 
 ---
 

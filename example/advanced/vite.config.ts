@@ -46,7 +46,7 @@ export default defineConfig(({ mode }) => {
       // Handles /api/* routes in-process so the example works without a backend.
       mockApi(),
       // ── vite-plugin-request-logger (all options) ──────────────────────────────
-      void viteRequestLogger({
+      viteRequestLogger({
         /** Only log requests whose URL starts with /api. */
         prefix: '/api',
 

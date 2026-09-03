@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Custom Features Example - vite-plugin-request-logger</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        background: #0f172a;
+        color: #f8fafc;
+        padding: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      h1 { color: #38bdf8; }
+      .card {
+        background: #1e293b;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        border: 1px solid #334155;
+      }
+      button {
+        background: #0284c7;
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        transition: background 0.2s;
+      }
+      button:hover { background: #0369a1; }
+      #output {
+        background: #020617;
+        padding: 1rem;
+        border-radius: 6px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        margin-top: 1rem;
+        border: 1px solid #1e293b;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🚀 Custom Features Example</h1>
+    <p>Interactively test <code>filter</code>, <code>customMsg</code>, and <code>logger</code> in Vite.</p>
+
+    <div class="card">
+      <h3>Fire Test Requests</h3>
+      <button id="btn-api">GET /api/users (Logged by filter)</button>
+      <button id="btn-trpc">GET /trpc/getUser (Logged by filter)</button>
+      <button id="btn-slow">GET /api/slow (Triggers ⚠️ SLOW MSG)</button>
+      <button id="btn-ignored">GET /static/asset.js (Ignored by filter)</button>
+    </div>
+
+    <div id="output">Click a button above to send a request...</div>
+
+    <script type="module" src="/main.ts"></script>
+  </body>
+</html>

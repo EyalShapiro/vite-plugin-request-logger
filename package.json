@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-request-logger",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A robust, Morgan-like HTTP request logger plugin for Vite supporting Vite 5, 6, 7, 8+ with body logging and TypeScript support.",
   "type": "module",
   "author": "Eyal Shapiro",
@@ -41,7 +41,10 @@
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "typecheck": "tsc --noEmit",
+    "typecheck:examples": "cd example/advanced && npx tsc --noEmit && cd ../custom-features && npx tsc --noEmit",
+    "test:all": "npm run typecheck && npm run typecheck:examples && npm test",
     "example:advanced": "cd example/advanced && npm run dev",
+    "example:custom": "cd example/custom-features && npm run dev",
     "prepublishOnly": "npm run build && npm run test",
     "publish:all": "npm publish",
     "version:patch": "npm run prepublishOnly && npm version patch && npm run publish:all",
