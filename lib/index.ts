@@ -1,21 +1,10 @@
 import { appendFile } from 'node:fs/promises';
 import type { IncomingMessage, ServerResponse } from 'http';
+import type { Plugin, ViteDevServer } from 'vite';
 
-// Minimal structural types for Vite server/plugin — avoids cross-version
-// type conflicts when consumers use a different Vite major than the plugin's
-// devDependency (e.g. Vite 5 in the example, Vite 8 in the root).
-interface MinimalConnect {
-  use(handler: (req: IncomingMessage, res: ServerResponse, next: () => void) => void): void;
-}
-interface MinimalViteServer {
-  middlewares: MinimalConnect;
-}
-interface VitePluginObject {
-  name: string;
-  enforce?: 'pre' | 'post';
-  configureServer?: (server: MinimalViteServer) => void | (() => void);
-}
 import type { LoggerOptions, LoggerFormat, LoggerOption, LogFunction, CustomLogger } from './types';
+
+type VitePluginObject = Pick<Plugin, 'name' | 'enforce' | 'configureServer' | 'configurePreviewServer'>;
 import { redact } from './utils/redact';
 import { type AnsiColor, ANSI_COLORS, METHOD_COLORS, stripAnsi } from './utils/AnsiColor';
 
@@ -225,7 +214,7 @@ export function viteRequestLogger(userOptions: LoggerOptions = {}): VitePluginOb
     // Run before other plugins so the middleware is registered early
     enforce: 'pre',
 
-    configureServer(server: MinimalViteServer) {
+    configureServer(server: ViteDevServer) {
       server.middlewares.use((req: IncomingMessage, res: ServerResponse, next: () => void) => {
         try {
           const url = req.url || '/';
