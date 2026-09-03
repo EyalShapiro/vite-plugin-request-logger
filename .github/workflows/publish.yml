@@ -2,7 +2,7 @@ name: Publish Package to NPM
 
 on:
   release:
-    types: [published]   # triggered when you create a GitHub Release from a tag
+    types: [published] # triggered when you create a GitHub Release from a tag
   workflow_dispatch:
 
 jobs:

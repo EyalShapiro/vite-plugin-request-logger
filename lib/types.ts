@@ -82,7 +82,11 @@ export interface LoggerOptions {
    * @example
    * customMsg: (req, res, responseTimeMs) => responseTimeMs > 500 ? '⚠️ SLOW' : undefined
    */
-  customMsg?: (req: IncomingMessage, res: ServerResponse, responseTimeMs: number) => string | undefined;
+  customMsg?: (
+    req: IncomingMessage,
+    res: ServerResponse,
+    responseTimeMs: number,
+  ) => string | undefined;
 
   /**
    * Custom logger instance (e.g., Pino, Winston, custom object) or preset (`'console'` | `'silent'`).
