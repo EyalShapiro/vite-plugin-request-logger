@@ -1,29 +1,57 @@
 name: CI Quality Checks & Build
+
 on:
   push:
     branches: [main, master, dev, prod]
+    tags:
+      - 'v*'       # runs CI on every version tag (e.g. v1.1.0) before publish
   pull_request:
     branches: [main, master, dev, prod]
+
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "npm"
-      - name: Install dependencies
+
+      - name: Install root dependencies
         run: npm ci
-      - name: Type Check (tsc)
+
+      - name: Type Check — library (tsc)
         run: npm run typecheck
+
       - name: Lint Check (eslint)
         run: npm run lint
-      # - name: Code Formatting Check (prettier)
-        # run: npm run format
-      - name: Run Tests (vitest)
-        run: npm run test
+
+      - name: Code Formatting Check (prettier)
+        run: npm run format
+
+      - name: Run Unit Tests (vitest)
+        run: npm test
+
       - name: Build Library (tsup)
         run: npm run build
+
+      # ── Example projects ────────────────────────────────────────────────────
+      - name: Install — example/advanced
+        run: npm ci
+        working-directory: example/advanced
+
+      - name: Type Check — example/advanced (Vite 5)
+        run: npx tsc --noEmit
+        working-directory: example/advanced
+
+      - name: Install — example/custom-features
+        run: npm ci
+        working-directory: example/custom-features
+
+      - name: Type Check — example/custom-features (Vite 5)
+        run: npx tsc --noEmit
+        working-directory: example/custom-features
