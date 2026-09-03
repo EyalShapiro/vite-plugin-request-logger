@@ -15,13 +15,7 @@ interface VitePluginObject {
   enforce?: 'pre' | 'post';
   configureServer?: (server: MinimalViteServer) => void | (() => void);
 }
-import type {
-  LoggerOptions,
-  LoggerFormat,
-  LoggerOption,
-  LogFunction,
-  CustomLogger,
-} from './types';
+import type { LoggerOptions, LoggerFormat, LoggerOption, LogFunction, CustomLogger } from './types';
 import { redact } from './utils/redact';
 import { type AnsiColor, ANSI_COLORS, METHOD_COLORS, stripAnsi } from './utils/AnsiColor';
 
@@ -245,7 +239,10 @@ export function viteRequestLogger(userOptions: LoggerOptions = {}): VitePluginOb
             }
           } catch (filterErr) {
             if (!options.silentOnError) {
-              logger.error('[vite-plugin-request-logger] Custom filter function threw an error:', filterErr);
+              logger.error(
+                '[vite-plugin-request-logger] Custom filter function threw an error:',
+                filterErr,
+              );
             }
             shouldLog = false;
           }
@@ -298,7 +295,10 @@ export function viteRequestLogger(userOptions: LoggerOptions = {}): VitePluginOb
                   }
                 } catch (customMsgErr) {
                   if (!options.silentOnError) {
-                    logger.error('[vite-plugin-request-logger] customMsg callback threw an error:', customMsgErr);
+                    logger.error(
+                      '[vite-plugin-request-logger] customMsg callback threw an error:',
+                      customMsgErr,
+                    );
                   }
                 }
               }
@@ -367,4 +367,3 @@ export function viteRequestLogger(userOptions: LoggerOptions = {}): VitePluginOb
   };
 }
 export default viteRequestLogger;
-
