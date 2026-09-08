@@ -1,5 +1,5 @@
 import express from 'express';
-import { createRequestLoggerMiddleware } from '../../dist/index.js';
+import { createRequestLoggerMiddleware } from 'vite-plugin-request-logger';
 
 const app = express();
 

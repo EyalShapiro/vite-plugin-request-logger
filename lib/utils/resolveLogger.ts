@@ -1,4 +1,4 @@
-import { noop } from './heleprs';
+import { noop } from './helpers';
 
 import type { LoggerOption, LogFunction } from '../types';
 export type ReturnLogger = { info: LogFunction; error: LogFunction };

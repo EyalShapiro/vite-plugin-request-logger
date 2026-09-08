@@ -1,6 +1,6 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
-import viteRequestLogger from '../../lib/index.ts';
+import viteRequestLogger from 'vite-plugin-request-logger';
 
 const statusCodes = [200, 201, 204, 400, 401, 403, 404, 500];
 const randomFromList = <T>(list: T[]): T => {
@@ -13,7 +13,7 @@ export default defineConfig({
     viteRequestLogger({
       format: 'dev',
       logBody: true,
-      ignoreStaticAssets: true,
+      skipAssets: true,
     }),
     {
       name: 'mock-api',

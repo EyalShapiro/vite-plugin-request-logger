@@ -30,6 +30,8 @@ Intercepts requests inside the Vite dev-server middleware chain and prints each 
 - 📁 **File logging** — optionally append plain-text logs to a file (ANSI codes stripped automatically)
 - 🔒 **Fail-safe** — errors inside the plugin never crash your dev server
 - 🦾 **Full TypeScript** — complete types and IntelliSense for all options
+- 🧩 **Standalone middleware** — use `createRequestLoggerMiddleware` in Express, Fastify, or any Node.js server
+- 🌐 **Browser console** — auto-injects a client-side interceptor for fetch & XHR visibility
 
 ---
 
@@ -118,7 +120,9 @@ viteRequestLogger({
 | `redactKeys`    | `string[]`                                 | `['password','token','secret']` | Keys replaced with `[REDACTED]` in bodies & headers (case-insensitive). |
 | `logToFile`     | `string`                                   | `undefined`                     | Path to append plain-text logs (e.g. `'logs/requests.log'`).            |
 | `colors`        | `boolean`                                  | `true`                          | Enable ANSI colors in terminal output.                                  |
-| `timezone`      | `string`                                   | `'he-IL'`                       | BCP 47 locale for timestamp formatting (e.g. `'en-US'`, `'de-DE'`).     |
+| `timezone`      | `string \| ((d: Date) => string)`           | `'he-IL'`                       | BCP 47 locale for timestamp formatting (e.g. `'en-US'`) or a custom formatter function. |
+| `ignorePaths`   | `(string \| RegExp)[]`                     | `undefined`                     | Paths or patterns to exclude from logging (e.g. `['/health', /^\/assets\//]`). |
+| `skipAssets`    | `boolean`                                  | `false`                         | Skip logging of static asset requests (`.js`, `.css`, images, fonts, …). |
 | `silentOnError` | `boolean`                                  | `true`                          | Silently catch internal plugin errors to prevent dev server crashes.    |
 
 ---
@@ -412,13 +416,57 @@ export default defineConfig(({ mode }) => ({
 viteRequestLogger({
   logToFile: 'logs/requests.log',
   colors: false,
-  // Override console.info to suppress terminal output
-  silentOnError: true,
+  logger: 'silent', // suppress terminal output entirely
 });
 ```
 
 > **Tip:** The log file is always plain text (ANSI codes stripped automatically),
 > so it's safe to `tail -f logs/requests.log` or ship to any log aggregator.
+
+### Skip health-check and asset routes
+
+```ts
+viteRequestLogger({
+  ignorePaths: ['/health', '/ping', /^\/metrics/],
+  skipAssets: true,
+});
+```
+
+### Standalone middleware (Express / Fastify / pure Node.js)
+
+Use `createRequestLoggerMiddleware` independently of Vite — perfect for production servers or any Connect-compatible framework:
+
+```ts
+import express from 'express';
+import { createRequestLoggerMiddleware } from 'vite-plugin-request-logger';
+
+const app = express();
+app.use(
+  createRequestLoggerMiddleware({
+    prefix: '/api',
+    format: 'dev',
+    logBody: true,
+    redactKeys: ['password', 'token'],
+  }),
+);
+```
+
+Or with a pure `node:http` server:
+
+```ts
+import http from 'node:http';
+import { createRequestLoggerMiddleware } from 'vite-plugin-request-logger';
+
+const logger = createRequestLoggerMiddleware({ prefix: '/api' });
+
+const server = http.createServer((req, res) => {
+  logger(req, res, () => {
+    // your handler
+    res.end('Hello');
+  });
+});
+server.listen(3000);
+```
 
 ---
 
@@ -436,18 +484,15 @@ The plugin registers a middleware in Vite's dev server using `configureServer`. 
 
 ## Runnable Examples
 
-Two standalone examples are bundled under [`example/`](./example/):
+Five standalone examples are bundled under [`example/`](./example/):
 
-### `example/base` — Minimal setup
-
-The simplest possible configuration. Fires a few fetch calls on page load so you can see the plugin working immediately.
-
-```bash
-cd example/base
-npm install
-npm run dev
-# Open http://localhost:3000
-```
+| Example | Port | Description |
+| :------ | :--- | :---------- |
+| [`advanced`](./example/advanced/) | 3001 | All plugin options · Vite 5 · mock API · file logging |
+| [`custom-features`](./example/custom-features/) | 3002 | Custom `filter`, `customMsg`, Pino/Winston logger |
+| [`vite-node-server`](./example/vite-node-server/) | 3003 | Pure Node.js API embedded in Vite — no Express |
+| [`react-example`](./example/react-example/) | 3000 | React + Vite + axios |
+| [`express-standalone`](./example/express-standalone/) | 4000 | Standalone Express server (no Vite) |
 
 ### [`example/advanced`](https://github.com/EyalShapiro/vite-plugin-request-logger/tree/main/example/advanced) — All options · Vite 5
 
@@ -460,14 +505,7 @@ npm run dev
 # Open http://localhost:3001
 ```
 
-Features demonstrated:
-
-- All HTTP methods: GET, POST, PUT, PATCH, DELETE
-- Body logging with automatic JSON pretty-printing
-- Header logging
-- Automatic redaction (`password`, `token`, `authorization`)
-- File logging → `logs/requests.log`
-- Requests outside `/api` are silently ignored
+Features demonstrated: all HTTP methods, body logging, header logging, automatic redaction, file logging, prefix filtering.
 
 ### [`example/custom-features`](https://github.com/EyalShapiro/vite-plugin-request-logger/tree/main/example/custom-features) — Filter, Custom Message & Custom Logger
 
@@ -480,11 +518,47 @@ npm run dev
 # Open http://localhost:3002
 ```
 
-Or run directly from root:
+### [`example/vite-node-server`](https://github.com/EyalShapiro/vite-plugin-request-logger/tree/main/example/vite-node-server) — Pure Node.js inside Vite · No Express
+
+Shows how to embed a complete CRUD API using **only** `node:http` primitives inside the Vite middleware chain via `configureServer`. Zero extra runtime dependencies.
 
 ```bash
-npm run example:custom    # custom features example (port 3002)
-npm run example:advanced  # advanced example (port 3001, Vite 5)
+cd example/vite-node-server
+npm install
+npm run dev
+# Open http://localhost:3003
+```
+
+### [`example/react-example`](https://github.com/EyalShapiro/vite-plugin-request-logger/tree/main/example/react-example) — React + Vite
+
+React 19 app using axios for HTTP calls. The plugin logs every request in the terminal and the client-side interceptor mirrors them in the browser console.
+
+```bash
+cd example/react-example
+npm install
+npm run dev
+# Open http://localhost:3000
+```
+
+### [`example/express-standalone`](https://github.com/EyalShapiro/vite-plugin-request-logger/tree/main/example/express-standalone) — Express Standalone
+
+Uses `createRequestLoggerMiddleware` directly in an Express server — no Vite needed. Useful for production or preview servers.
+
+```bash
+cd example/express-standalone
+npm install
+npm start
+# Server on http://localhost:4000
+```
+
+Run any example from the project root:
+
+```bash
+npm run example:advanced    # port 3001
+npm run example:custom      # port 3002
+npm run example:vite-node   # port 3003
+npm run example:react       # port 3000
+npm run example:express     # port 4000
 ```
 
 ---
