@@ -45,6 +45,7 @@
     "test:all": "npm run typecheck && npm run typecheck:examples && npm test",
     "example:advanced": "cd example/advanced && npm run dev",
     "example:custom": "cd example/custom-features && npm run dev",
+    "example:express": "cd example/express-standalone && npm start",
     "prepublishOnly": "npm run build && npm run test",
     "publish:all": "npm publish",
     "version:patch": "npm run prepublishOnly && npm version patch && npm run publish:all",

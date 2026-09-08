@@ -1,39 +1,60 @@
-import http from 'node:http';
+import express from 'express';
 import { createRequestLoggerMiddleware } from '../../dist/index.js';
 
-// Create the standalone request logger middleware
-const requestLogger = createRequestLoggerMiddleware({
-  prefix: '/api',
-  format: 'dev',
-  colors: true,
-  logBody: true,
-  redactKeys: ['password', 'token', 'secret'],
-  skipAssets: true,
-  ignorePaths: ['/health'],
-});
+const app = express();
 
-const server = http.createServer((req, res) => {
-  // Use the standalone middleware
-  requestLogger(req, res, () => {
-    if (req.url?.startsWith('/api/users')) {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ users: [{ id: 1, name: 'Eyal' }] }));
-      return;
-    }
+// Parse incoming JSON body payloads
+app.use(express.json());
 
-    if (req.url === '/health') {
-      res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.end('OK');
-      return;
-    }
+// Attach the standalone request logger middleware
+app.use(
+  createRequestLoggerMiddleware({
+    prefix: '/api',
+    format: 'dev',
+    colors: true,
+    logBody: true,
+    logHeaders: false,
+    redactKeys: ['password', 'token', 'secret'],
+    skipAssets: true,
+    ignorePaths: ['/health'],
+  }),
+);
 
-    res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: 'Not Found' }));
+// GET API endpoint
+app.get('/api/users', (req, res) => {
+  res.json({
+    users: [
+      { id: 1, name: 'Eyal' },
+      { id: 2, name: 'Developer' },
+    ],
   });
 });
 
-const PORT = 4000;
-server.listen(PORT, () => {
-  console.log(`[Standalone Server] Running at http://localhost:${PORT}`);
-  console.log(`Try: curl http://localhost:${PORT}/api/users`);
+// POST API endpoint (demonstrates JSON body logging and sensitive key redaction)
+app.post('/api/login', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Logged in successfully',
+  });
 });
+
+// Ignored endpoint (will not appear in logs)
+app.get('/health', (req, res) => {
+  res.send('OK');
+});
+
+// Asset endpoint (skipped when skipAssets: true)
+app.get('/static/style.css', (req, res) => {
+  res.type('text/css').send('body { margin: 0; }');
+});
+
+const PORT = 4000;
+const server = app.listen(PORT, () => {
+  console.log(`[Express Standalone Server] Running on http://localhost:${PORT}`);
+  console.log(`- GET  /api/users      -> Logs request and duration`);
+  console.log(`- POST /api/login      -> Logs request body with [REDACTED] password`);
+  console.log(`- GET  /health         -> Ignored via ignorePaths`);
+  console.log(`- GET  /static/style.css -> Ignored via skipAssets`);
+});
+
+export { app, server };
