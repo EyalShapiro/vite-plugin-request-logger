@@ -1,0 +1,82 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./src/styles.css" />
+
+    <title>Vite Node Server — Request Logger Demo</title>
+  </head>
+
+  <body>
+    <h1>🚀 Vite Node Server</h1>
+
+    <p class="subtitle">
+      vite-plugin-request-logger — pure Node.js HTTP mock API running inside Vite's dev server
+    </p>
+
+    <div>
+      <span class="badge">Vite Plugin</span>
+      <span class="badge">node:http</span>
+      <span class="badge">Zero Extra Deps</span>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>📥 Read endpoints</h2>
+
+        <div class="btn-group">
+          <button class="btn-get" data-method="GET" data-url="/api/users">GET /api/users</button>
+
+          <button class="btn-get" data-method="GET" data-url="/api/users/1">
+            GET /api/users/1
+          </button>
+
+          <button class="btn-get" data-method="GET" data-url="/api/products">
+            GET /api/products
+          </button>
+
+          <button class="btn-get" data-method="GET" data-url="/health">
+            GET /health (skipped)
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>✏️ Mutating endpoints (body logged)</h2>
+
+        <div class="btn-group" id="mutating-buttons"></div>
+      </div>
+
+      <div class="card">
+        <h2>⚠️ Error responses</h2>
+
+        <div class="btn-group">
+          <button class="btn-get" data-method="GET" data-url="/api/not-found">
+            GET /api/not-found (404)
+          </button>
+
+          <button class="btn-post" data-method="POST" data-url="/api/error">
+            POST /api/error (500)
+          </button>
+
+          <button class="btn-get" data-method="GET" data-url="/api/forbidden">
+            GET /api/forbidden (403)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="log">
+      » Click a button to fire a request. Watch your terminal for server-side logs.
+    </div>
+
+    <button id="clear-btn">Clear log</button>
+
+    <p class="hint">📋 Server logs appear in your terminal · Browser logs appear above</p>
+
+    <script type="module" src="./src/script.js"></script>
+  </body>
+</html>
+```

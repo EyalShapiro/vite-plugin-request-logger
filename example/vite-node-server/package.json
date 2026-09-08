@@ -1,0 +1,17 @@
+{
+  "name": "vite-node-server",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vite-plugin-request-logger": "file:../.."
+  },
+  "devDependencies": {
+    "vite": "^8.2.2"
+  }
+}

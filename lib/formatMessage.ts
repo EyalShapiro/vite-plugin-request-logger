@@ -73,13 +73,16 @@ export function formatMessage(
 ): string {
   const isObject = typeof formatOrOptions === 'object' && formatOrOptions !== null;
 
-  const format: LoggerOptions['format'] = isObject ? formatOrOptions.format : formatOrOptions;
-  const method = isObject ? formatOrOptions.method : (methodArg ?? 'GET');
-  const url = isObject ? formatOrOptions.url : (urlArg ?? '/');
-  const status: StatusType = isObject ? formatOrOptions.status : (statusArg ?? 200);
-  const responseTimeMs = isObject ? formatOrOptions.responseTimeMs : (responseTimeMsArg ?? '0');
-  const colors: boolean | undefined = isObject ? formatOrOptions.colors : colorsArg;
-  const timezone: LoggerOptions['timezone'] = isObject ? formatOrOptions.timezone : timezoneArg;
+  const format: LoggerOptions['format'] = isObject
+    ? (formatOrOptions as FormatMessageOptions).format
+    : (formatOrOptions as LoggerOptions['format']);
+  const method = isObject ? (formatOrOptions as FormatMessageOptions).method : (methodArg ?? 'GET');
+  const url = isObject ? (formatOrOptions as FormatMessageOptions).url : (urlArg ?? '/');
+  const status: StatusType = isObject ? (formatOrOptions as FormatMessageOptions).status : (statusArg ?? 200);
+  const responseTimeMs = isObject ? (formatOrOptions as FormatMessageOptions).responseTimeMs : (responseTimeMsArg ?? '0');
+  const colors: boolean | undefined = isObject ? (formatOrOptions as FormatMessageOptions).colors : colorsArg;
+  const timezone: LoggerOptions['timezone'] = isObject ? (formatOrOptions as FormatMessageOptions).timezone : timezoneArg;
+
 
   const now = new Date();
   const timestamp =
