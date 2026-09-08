@@ -12,7 +12,7 @@ import type { IncomingMessage, ServerResponse } from 'http';
  */
 export type LoggerFormat = 'dev' | 'tiny' | 'combined' | 'short';
 
-export type LogFunction = (message: string, ...args: unknown[]) => void;
+export type LogFunction = (typeof console)['log' | 'info' | 'error' | 'warn' | 'debug'];
 
 /**
  * Custom logger interface compatible with Winston, Pino, Bunyan, or custom objects.
@@ -139,10 +139,10 @@ export interface LoggerOptions {
    * Keys whose values will be replaced with `[REDACTED]` in logged bodies and headers.
    * Matching is **case-insensitive**.
    *
-   * @default ['password', 'token', 'secret']
+   * @default ["token", "password", "secret","authorization", "cookie","apiKey","api_key","authorization_token"]
    * @example ['password', 'token', 'secret', 'apiKey', 'authorization']
    */
-  redactKeys?: string[];
+  redactKeys?: readonly string[];
 
   /**
    * Path to a log file where each request line will be appended (in addition to the terminal).
@@ -168,7 +168,22 @@ export interface LoggerOptions {
    * @default 'he-IL'
    * @example 'en-US' | 'de-DE' | 'ja-JP'
    */
-  timezone?: Intl.LocalesArgument;
+  timezone?: Intl.LocalesArgument | ((d: Date) => string);
+
+  /**
+   * Paths or patterns to ignore and skip from logging.
+   * Accepts path prefix strings or regular expressions.
+   *
+   * @example ['/health', /^\/assets\//]
+   */
+  ignorePaths?: (string | RegExp)[];
+
+  /**
+   * If `true`, skips static asset requests (.js, .css, images, fonts, etc.).
+   *
+   * @default false
+   */
+  skipAssets?: boolean;
 
   /**
    * If `true`, any internal plugin errors are silently caught and will **not** crash
