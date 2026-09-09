@@ -48,6 +48,9 @@
       }
     }
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "bin": {
     "vite-plugin-request-logger": "./dist/cli.js",
     "vprl": "./dist/cli.js"
