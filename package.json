@@ -48,6 +48,10 @@
       }
     }
   },
+  "bin": {
+    "vite-plugin-request-logger": "./dist/cli.js",
+    "vprl": "./dist/cli.js"
+  },
   "files": [
     "dist",
     "README.md",
@@ -67,6 +71,8 @@
     "example:custom": "cd example/custom-features && npm run dev",
     "example:express": "cd example/express-standalone && npm start",
     "example:react": "cd example/react-example && npm run dev",
+    "example:react-query": "cd example/react-query-axios && npm run dev",
+    "example:solid": "cd example/solid-ts && npm run dev",
     "example:react:build": "cd example/react-example && npm run build",
     "example:react:preview": "cd example/react-example && npm run preview",
     "example:vite-node": "cd example/vite-node-server && npm run dev",

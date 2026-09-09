@@ -1,17 +1,21 @@
 import type { IncomingMessage, ServerResponse } from 'http';
 import type { LoggerOptions, CustomLogger } from './types';
 import { DEFAULT_OPTIONS } from './constants/default-options';
-import { METHODS_WITH_BODY } from './http-method';
 import { formatMessage } from './formatMessage';
-import { normalizePrefix, truncateBody } from './utils/helpers';
+import { normalizePrefix } from './utils/helpers';
 import { safeExec } from './utils/safe-exec';
-import { safeJsonParse, safeJsonStringify } from './utils/json.utils';
-import { redact, redactWithRegex } from './utils/redact';
+import { safeJsonStringify } from './utils/json.utils';
+import { redact } from './utils/redact';
 import { resolveLogger, type ReturnLogger } from './utils/resolveLogger';
 import { writeLogToFile } from './utils/file.utils';
+import { extractRequestBody, formatRequestBody, type RequestWithBody } from './utils/body.utils';
 
 /**
- * Standard Connect / Express middleware signature.
+ * Standard Connect / Express middleware function signature.
+ *
+ * @param {IncomingMessage} req - Node.js HTTP request.
+ * @param {ServerResponse} res - Node.js HTTP response.
+ * @param {(err?: unknown) => void} next - Callback to proceed to the next middleware.
  */
 export type ConnectMiddleware = (
   req: IncomingMessage,
@@ -29,6 +33,12 @@ const ASSET_REGEX = /\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|webp|
  * @param {string | undefined} url - The request URL path.
  * @param {LoggerOptions} options - Logger options.
  * @returns {boolean} `true` if the request should be skipped; otherwise `false`.
+ *
+ * @example
+ * ```ts
+ * shouldSkip('/assets/logo.svg', { skipAssets: true }); // true
+ * shouldSkip('/api/users', { skipAssets: true }); // false
+ * ```
  */
 export function shouldSkip(url: string | undefined, options: LoggerOptions): boolean {
   if (!url) return false;
@@ -56,6 +66,11 @@ export function shouldSkip(url: string | undefined, options: LoggerOptions): boo
  * @param {string} normalizedPrefix - The normalized URL prefix filter.
  * @param {CustomLogger | ReturnLogger} logger - The resolved logger instance.
  * @returns {boolean} `true` if the request should be logged; otherwise `false`.
+ *
+ * @example
+ * ```ts
+ * const shouldLog = getShouldLog(options, req, '/api/users', '/api', logger);
+ * ```
  */
 export function getShouldLog(
   options: LoggerOptions,
@@ -97,7 +112,7 @@ export function getShouldLog(
  * import { createRequestLoggerMiddleware } from 'vite-plugin-request-logger';
  *
  * const app = express();
- * app.use(createRequestLoggerMiddleware({ prefix: '/api', format: 'dev' }));
+ * app.use(createRequestLoggerMiddleware({ prefix: '/api', format: 'dev', logBody: true }));
  * ```
  */
 export function createRequestLoggerMiddleware(userOptions: LoggerOptions = {}): ConnectMiddleware {
@@ -121,18 +136,31 @@ export function createRequestLoggerMiddleware(userOptions: LoggerOptions = {}): 
 
       const startTime = performance.now();
       const method = req.method || 'GET';
-      let rawBody = '';
+      let rawStreamBody = '';
 
-      // Collect request body chunks for mutating HTTP methods
-      if (
-        options.logBody &&
-        METHODS_WITH_BODY.includes(method as (typeof METHODS_WITH_BODY)[number])
-      ) {
-        req.on('data', (chunk: Buffer) => {
-          safeExec(() => {
-            rawBody += chunk.toString('utf8');
+      // Collect request body chunks for mutating HTTP methods or when logBody is enabled
+      if (options.logBody) {
+        const initialBody = (req as RequestWithBody).body;
+        if (initialBody !== undefined && initialBody !== null) {
+          rawStreamBody =
+            typeof initialBody === 'string'
+              ? initialBody
+              : safeJsonStringify(initialBody, '{}') || '';
+        }
+
+        if (typeof req.on === 'function') {
+          req.on('data', (chunk: unknown) => {
+            safeExec(() => {
+              if (chunk) {
+                rawStreamBody += Buffer.isBuffer(chunk)
+                  ? chunk.toString('utf8')
+                  : typeof chunk === 'string'
+                    ? chunk
+                    : String(chunk);
+              }
+            });
           });
-        });
+        }
       }
 
       // ── Monkey-patch res.end ─────────────────────────────────────────────
@@ -185,25 +213,12 @@ export function createRequestLoggerMiddleware(userOptions: LoggerOptions = {}): 
             }
 
             // Append redacted and formatted body if enabled
-            if (options.logBody && rawBody.trim()) {
-              let formattedBody = rawBody;
-              const parsed = safeJsonParse(rawBody);
-
-              if (parsed !== undefined) {
-                // Successfully parsed as JSON → redact sensitive keys → pretty-print
-                const redactedBody = redact(parsed, options.redactKeys);
-                formattedBody = safeJsonStringify(redactedBody, { space: 2 }) ?? rawBody;
-              } else {
-                // Body is not valid JSON → fallback to regex-based redaction
-                formattedBody = redactWithRegex(rawBody, options.redactKeys);
+            if (options.logBody) {
+              const candidate = extractRequestBody(req as RequestWithBody, rawStreamBody);
+              const formattedBody = formatRequestBody(candidate, options);
+              if (formattedBody) {
+                logMessage += `\n  Body: ${formattedBody}`;
               }
-
-              // Truncate body if exceeding maxBodyLength
-              const maxLen = options?.maxBodyLength ?? DEFAULT_OPTIONS.maxBodyLength;
-              if (formattedBody.length > maxLen) {
-                formattedBody = truncateBody(formattedBody, maxLen);
-              }
-              logMessage += `\n  Body: ${formattedBody}`;
             }
 
             // Print the final log message using resolved logger

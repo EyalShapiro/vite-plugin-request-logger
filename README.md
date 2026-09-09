@@ -1,5 +1,10 @@
 # vite-plugin-request-logger
 
+---
+
+👨‍💻 **Created by** [Eyal Shapiro](https://github.com/EyalShapiro/vite-plugin-request-logger)
+---
+
 [![npm version](https://img.shields.io/npm/v/vite-plugin-request-logger.svg)](https://www.npmjs.com/package/vite-plugin-request-logger)
 [![npm downloads](https://img.shields.io/npm/dm/vite-plugin-request-logger.svg)](https://www.npmjs.com/package/vite-plugin-request-logger)
 [![license](https://img.shields.io/npm/l/vite-plugin-request-logger.svg)](./LICENSE)
@@ -32,6 +37,7 @@ Intercepts requests inside the Vite dev-server middleware chain and prints each 
 - 🦾 **Full TypeScript** — complete types and IntelliSense for all options
 - 🧩 **Standalone middleware** — use `createRequestLoggerMiddleware` in Express, Fastify, or any Node.js server
 - 🌐 **Browser console** — auto-injects a client-side interceptor for fetch & XHR visibility
+- 💻 **Vite CLI binary** — zero-config instant dev server logging (`npx vprl` / `npx vite-plugin-request-logger`)
 
 ---
 
@@ -88,6 +94,23 @@ That's it. All requests to `/api/*` will be logged in your terminal automaticall
 
 ---
 
+## 💻 Vite CLI Usage
+
+You can launch Vite directly with `vite-plugin-request-logger` enabled **without editing any configuration files** using our built-in CLI binary (`vprl` / `vite-plugin-request-logger`):
+
+```bash
+# Start Vite dev server with request logging
+npx vprl dev
+
+# Start preview server with request logging
+npx vprl preview
+
+# Run Vite build with request logging
+npx vprl build
+```
+
+---
+
 ## Configuration
 
 ```ts
@@ -107,23 +130,23 @@ viteRequestLogger({
 
 ### Options Reference
 
-| Option          | Type                                       | Default                         | Description                                                             |
-| :-------------- | :----------------------------------------- | :------------------------------ | :---------------------------------------------------------------------- |
-| `prefix`        | `string`                                   | `'/api'`                        | Only log requests whose URL starts with this prefix. Use `'/'` for all. |
-| `filter`        | `(req) => boolean`                         | `undefined`                     | Custom filter function (overrides `prefix` when provided).              |
-| `customMsg`     | `(req, res, responseTimeMs) => string`     | `undefined`                     | Callback returning a custom suffix string to append to log lines.       |
-| `logger`        | `CustomLogger \| 'console' \| 'silent'`    | `'console'`                     | Custom logger instance (e.g. Pino, Winston) or preset (`'silent'`).     |
-| `format`        | `'dev' \| 'tiny' \| 'short' \| 'combined'` | `'dev'`                         | Log line format preset.                                                 |
-| `logBody`       | `boolean`                                  | `true`                          | Log request body for POST / PUT / PATCH / DELETE.                       |
-| `maxBodyLength` | `number`                                   | `1000`                          | Max characters of body to display before truncating.                    |
-| `logHeaders`    | `boolean`                                  | `false`                         | Include all request headers in log output.                              |
-| `redactKeys`    | `string[]`                                 | `['password','token','secret']` | Keys replaced with `[REDACTED]` in bodies & headers (case-insensitive). |
-| `logToFile`     | `string`                                   | `undefined`                     | Path to append plain-text logs (e.g. `'logs/requests.log'`).            |
-| `colors`        | `boolean`                                  | `true`                          | Enable ANSI colors in terminal output.                                  |
-| `timezone`      | `string \| ((d: Date) => string)`           | `'he-IL'`                       | BCP 47 locale for timestamp formatting (e.g. `'en-US'`) or a custom formatter function. |
-| `ignorePaths`   | `(string \| RegExp)[]`                     | `undefined`                     | Paths or patterns to exclude from logging (e.g. `['/health', /^\/assets\//]`). |
-| `skipAssets`    | `boolean`                                  | `false`                         | Skip logging of static asset requests (`.js`, `.css`, images, fonts, …). |
-| `silentOnError` | `boolean`                                  | `true`                          | Silently catch internal plugin errors to prevent dev server crashes.    |
+| Option          | Type                                       | Default                         | Description                                                                             |
+| :-------------- | :----------------------------------------- | :------------------------------ | :-------------------------------------------------------------------------------------- |
+| `prefix`        | `string`                                   | `'/api'`                        | Only log requests whose URL starts with this prefix. Use `'/'` for all.                 |
+| `filter`        | `(req) => boolean`                         | `undefined`                     | Custom filter function (overrides `prefix` when provided).                              |
+| `customMsg`     | `(req, res, responseTimeMs) => string`     | `undefined`                     | Callback returning a custom suffix string to append to log lines.                       |
+| `logger`        | `CustomLogger \| 'console' \| 'silent'`    | `'console'`                     | Custom logger instance (e.g. Pino, Winston) or preset (`'silent'`).                     |
+| `format`        | `'dev' \| 'tiny' \| 'short' \| 'combined'` | `'dev'`                         | Log line format preset.                                                                 |
+| `logBody`       | `boolean`                                  | `true`                          | Log request body for POST / PUT / PATCH / DELETE.                                       |
+| `maxBodyLength` | `number`                                   | `1000`                          | Max characters of body to display before truncating.                                    |
+| `logHeaders`    | `boolean`                                  | `false`                         | Include all request headers in log output.                                              |
+| `redactKeys`    | `string[]`                                 | `['password','token','secret']` | Keys replaced with `[REDACTED]` in bodies & headers (case-insensitive).                 |
+| `logToFile`     | `string`                                   | `undefined`                     | Path to append plain-text logs (e.g. `'logs/requests.log'`).                            |
+| `colors`        | `boolean`                                  | `true`                          | Enable ANSI colors in terminal output.                                                  |
+| `timezone`      | `string \| ((d: Date) => string)`          | `'he-IL'`                       | BCP 47 locale for timestamp formatting (e.g. `'en-US'`) or a custom formatter function. |
+| `ignorePaths`   | `(string \| RegExp)[]`                     | `undefined`                     | Paths or patterns to exclude from logging (e.g. `['/health', /^\/assets\//]`).          |
+| `skipAssets`    | `boolean`                                  | `false`                         | Skip logging of static asset requests (`.js`, `.css`, images, fonts, …).                |
+| `silentOnError` | `boolean`                                  | `true`                          | Silently catch internal plugin errors to prevent dev server crashes.                    |
 
 ---
 
@@ -486,13 +509,38 @@ The plugin registers a middleware in Vite's dev server using `configureServer`. 
 
 Five standalone examples are bundled under [`example/`](./example/):
 
-| Example | Port | Description |
-| :------ | :--- | :---------- |
-| [`advanced`](./example/advanced/) | 3001 | All plugin options · Vite 5 · mock API · file logging |
-| [`custom-features`](./example/custom-features/) | 3002 | Custom `filter`, `customMsg`, Pino/Winston logger |
-| [`vite-node-server`](./example/vite-node-server/) | 3003 | Pure Node.js API embedded in Vite — no Express |
-| [`react-example`](./example/react-example/) | 3000 | React + Vite + axios |
-| [`express-standalone`](./example/express-standalone/) | 4000 | Standalone Express server (no Vite) |
+| Example                                               | Port | Description                                           |
+| :---------------------------------------------------- | :--- | :---------------------------------------------------- |
+| [`react-query-axios`](./example/react-query-axios/)   | 5180 | React 19 + `@tanstack/react-query` + Axios Instance   |
+| [`solid-ts`](./example/solid-ts/)                     | 5181 | SolidJS + TypeScript (`solid-ts`) signal logging      |
+| [`client-interceptor`](./example/client-interceptor/) | 5173 | Dedicated browser fetch & XHR interceptor demo        |
+| [`advanced`](./example/advanced/)                     | 3001 | All plugin options · Vite 5 · mock API · file logging |
+| [`custom-features`](./example/custom-features/)       | 3002 | Custom `filter`, `customMsg`, Pino/Winston logger     |
+| [`vite-node-server`](./example/vite-node-server/)     | 3003 | Pure Node.js API embedded in Vite — no Express        |
+| [`react-example`](./example/react-example/)           | 3000 | React + Vite + axios                                  |
+| [`express-standalone`](./example/express-standalone/) | 4000 | Standalone Express server (no Vite)                   |
+
+### [`example/react-query-axios`](https://github.com/EyalShapiro/vite-plugin-request-logger/tree/main/example/react-query-axios) — React Query + Axios Instance
+
+Demonstrates capturing requests sent via a custom **Axios Instance** (`axios.create(...)`) integrated with **TanStack React Query** (`useQuery`, `useMutation`).
+
+```bash
+cd example/react-query-axios
+npm install
+npm run dev
+# Open http://localhost:5180
+```
+
+### [`example/solid-ts`](https://github.com/EyalShapiro/vite-plugin-request-logger/tree/main/example/solid-ts) — Solid-TS Example
+
+Demonstrates fine-grained SolidJS signals and `createResource` fetching data logged seamlessly by `vite-plugin-request-logger`.
+
+```bash
+cd example/solid-ts
+npm install
+npm run dev
+# Open http://localhost:5181
+```
 
 ### [`example/advanced`](https://github.com/EyalShapiro/vite-plugin-request-logger/tree/main/example/advanced) — All options · Vite 5
 
@@ -554,6 +602,8 @@ npm start
 Run any example from the project root:
 
 ```bash
+npm run example:react-query # port 5180
+npm run example:solid       # port 5181
 npm run example:advanced    # port 3001
 npm run example:custom      # port 3002
 npm run example:vite-node   # port 3003
