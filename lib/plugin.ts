@@ -1,7 +1,6 @@
 import type { LoggerOptions } from './types';
 import { createRequestLoggerMiddleware, type ConnectMiddleware } from './middleware';
 import { CLIENT_INTERCEPTOR_SCRIPT } from './client-interceptor';
-import type { Plugin } from 'vite';
 
 export const PLUGIN_NAME = 'vite-plugin-request-logger';
 
@@ -61,7 +60,7 @@ export interface VitePluginObject {
  * });
  * ```
  */
-export function viteRequestLogger(userOptions: LoggerOptions = {}): VitePluginObject | Plugin {
+export function viteRequestLogger(userOptions: LoggerOptions = {}): VitePluginObject {
   const middleware = createRequestLoggerMiddleware(userOptions);
 
   return {
