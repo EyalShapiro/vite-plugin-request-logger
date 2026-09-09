@@ -24,7 +24,10 @@ async function main() {
     });
     await server.listen();
     server.printUrls();
-    console.log('\x1b[32m%s\x1b[0m', '✅ Request Logger CLI: Dev server running with request logger enabled.');
+    console.log(
+      '\x1b[32m%s\x1b[0m',
+      '✅ Request Logger CLI: Dev server running with request logger enabled.',
+    );
   } else if (command === 'preview') {
     const previewServer = await preview({
       configFile: false,
@@ -34,7 +37,10 @@ async function main() {
       },
     });
     previewServer.printUrls();
-    console.log('\x1b[32m%s\x1b[0m', '✅ Request Logger CLI: Preview server running with request logger enabled.');
+    console.log(
+      '\x1b[32m%s\x1b[0m',
+      '✅ Request Logger CLI: Preview server running with request logger enabled.',
+    );
   } else if (command === 'build') {
     await build({
       configFile: false,

@@ -4,15 +4,15 @@ Everything runs in a **single process** via Vite's `configureServer` plugin hook
 
 ## What's demonstrated
 
-| Feature              | Detail                                                        |
-| -------------------- | ------------------------------------------------------------- |
-| `format: 'dev'`      | Coloured timestamp · method · URL · status · response time    |
-| `logBody: true`      | Pretty-prints JSON bodies for POST / PUT / PATCH / DELETE     |
-| `redactKeys`         | Hides `password`, `token`, `secret`, `authorization`          |
-| `skipAssets: true`   | Silences Vite's own JS / CSS / source-map requests            |
-| `ignorePaths`        | Skips `/health` from logging                                  |
-| In-process API       | CRUD `/api/users` + `/api/products` with no Express           |
-| Error routes         | 403, 404, 500 responses for colour-coded terminal output      |
+| Feature            | Detail                                                     |
+| ------------------ | ---------------------------------------------------------- |
+| `format: 'dev'`    | Coloured timestamp · method · URL · status · response time |
+| `logBody: true`    | Pretty-prints JSON bodies for POST / PUT / PATCH / DELETE  |
+| `redactKeys`       | Hides `password`, `token`, `secret`, `authorization`       |
+| `skipAssets: true` | Silences Vite's own JS / CSS / source-map requests         |
+| `ignorePaths`      | Skips `/health` from logging                               |
+| In-process API     | CRUD `/api/users` + `/api/products` with no Express        |
+| Error routes       | 403, 404, 500 responses for colour-coded terminal output   |
 
 ## Running
 
@@ -31,19 +31,19 @@ npm run example:vite-node
 
 ## API Routes
 
-| Method | URL               | Description                        |
-| ------ | ----------------- | ---------------------------------- |
-| GET    | `/api/users`      | List all users                     |
-| GET    | `/api/users/:id`  | Get a single user                  |
-| POST   | `/api/users`      | Create a user (body logged)        |
-| PUT    | `/api/users/:id`  | Replace a user (body logged)       |
-| PATCH  | `/api/users/:id`  | Update a user field (body logged)  |
-| DELETE | `/api/users/:id`  | Delete a user                      |
-| GET    | `/api/products`   | List products                      |
-| GET    | `/api/not-found`  | Simulated 404                      |
-| GET    | `/api/forbidden`  | Simulated 403                      |
-| POST   | `/api/error`      | Simulated 500                      |
-| GET    | `/health`         | Health check (ignored by logger)   |
+| Method | URL              | Description                       |
+| ------ | ---------------- | --------------------------------- |
+| GET    | `/api/users`     | List all users                    |
+| GET    | `/api/users/:id` | Get a single user                 |
+| POST   | `/api/users`     | Create a user (body logged)       |
+| PUT    | `/api/users/:id` | Replace a user (body logged)      |
+| PATCH  | `/api/users/:id` | Update a user field (body logged) |
+| DELETE | `/api/users/:id` | Delete a user                     |
+| GET    | `/api/products`  | List products                     |
+| GET    | `/api/not-found` | Simulated 404                     |
+| GET    | `/api/forbidden` | Simulated 403                     |
+| POST   | `/api/error`     | Simulated 500                     |
+| GET    | `/health`        | Health check (ignored by logger)  |
 
 ## How it works
 

@@ -26,14 +26,7 @@ export { METHODS_WITH_BODY } from './http-method';
 export type { HttpMethodType, HttpMethodWithBody, StatusType } from './http-method';
 
 // General Types
-export type {
-  LoggerOptions,
-  LoggerFormat,
-  LoggerOption,
-  LogFunction,
-  CustomLogger,
-} from './types';
+export type { LoggerOptions, LoggerFormat, LoggerOption, LogFunction, CustomLogger } from './types';
 
 // Default export
 export default viteRequestLogger;
- 

@@ -1,18 +1,18 @@
 // https://vike.dev/Layout
 
-import "./Layout.css";
+import './Layout.css';
 
-import type { JSX } from "solid-js";
-import logoUrl from "../assets/logo.svg";
-import { Link } from "../components/Link";
+import type { JSX } from 'solid-js';
+import logoUrl from '../assets/logo.svg';
+import { Link } from '../components/Link';
 
 export default function Layout(props: { children?: JSX.Element }) {
   return (
     <div
       style={{
-        display: "flex",
-        "max-width": "900px",
-        margin: "auto",
+        display: 'flex',
+        'max-width': '900px',
+        margin: 'auto',
       }}
     >
       <Sidebar>
@@ -31,12 +31,12 @@ function Sidebar(props: { children: JSX.Element }) {
     <div
       id="sidebar"
       style={{
-        padding: "20px",
-        "flex-shrink": 0,
-        display: "flex",
-        "flex-direction": "column",
-        "line-height": "1.8em",
-        "border-right": "2px solid #eee",
+        padding: '20px',
+        'flex-shrink': 0,
+        display: 'flex',
+        'flex-direction': 'column',
+        'line-height': '1.8em',
+        'border-right': '2px solid #eee',
       }}
     >
       {props.children}
@@ -50,9 +50,9 @@ function Content(props: { children: JSX.Element }) {
       <div
         id="page-content"
         style={{
-          padding: "20px",
-          "padding-bottom": "50px",
-          "min-height": "100vh",
+          padding: '20px',
+          'padding-bottom': '50px',
+          'min-height': '100vh',
         }}
       >
         {props.children}
@@ -65,8 +65,8 @@ function Logo() {
   return (
     <div
       style={{
-        "margin-top": "20px",
-        "margin-bottom": "10px",
+        'margin-top': '20px',
+        'margin-bottom': '10px',
       }}
     >
       <a href="/">

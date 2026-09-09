@@ -78,11 +78,18 @@ export function formatMessage(
     : (formatOrOptions as LoggerOptions['format']);
   const method = isObject ? (formatOrOptions as FormatMessageOptions).method : (methodArg ?? 'GET');
   const url = isObject ? (formatOrOptions as FormatMessageOptions).url : (urlArg ?? '/');
-  const status: StatusType = isObject ? (formatOrOptions as FormatMessageOptions).status : (statusArg ?? 200);
-  const responseTimeMs = isObject ? (formatOrOptions as FormatMessageOptions).responseTimeMs : (responseTimeMsArg ?? '0');
-  const colors: boolean | undefined = isObject ? (formatOrOptions as FormatMessageOptions).colors : colorsArg;
-  const timezone: LoggerOptions['timezone'] = isObject ? (formatOrOptions as FormatMessageOptions).timezone : timezoneArg;
-
+  const status: StatusType = isObject
+    ? (formatOrOptions as FormatMessageOptions).status
+    : (statusArg ?? 200);
+  const responseTimeMs = isObject
+    ? (formatOrOptions as FormatMessageOptions).responseTimeMs
+    : (responseTimeMsArg ?? '0');
+  const colors: boolean | undefined = isObject
+    ? (formatOrOptions as FormatMessageOptions).colors
+    : colorsArg;
+  const timezone: LoggerOptions['timezone'] = isObject
+    ? (formatOrOptions as FormatMessageOptions).timezone
+    : timezoneArg;
 
   const now = new Date();
   const timestamp =

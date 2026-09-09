@@ -69,9 +69,9 @@ describe('json.utils', () => {
 
       expect(safeJsonStringify(circular)).toBeUndefined();
       expect(safeJsonStringify(circular, '{"error":"circular"}')).toBe('{"error":"circular"}');
-      expect(
-        safeJsonStringify(circular, { space: 2, fallback: '{"error":"circular"}' }),
-      ).toBe('{"error":"circular"}');
+      expect(safeJsonStringify(circular, { space: 2, fallback: '{"error":"circular"}' })).toBe(
+        '{"error":"circular"}',
+      );
     });
 
     it('should not throw on BigInt and return fallback', () => {

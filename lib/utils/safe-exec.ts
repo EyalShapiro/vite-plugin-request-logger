@@ -13,11 +13,7 @@
  * @example
  * const isMatched = safeExec(() => customFilter(req), false, (err) => console.error(err));
  */
-export function safeExec<T>(
-  fn: () => T,
-  fallback: T,
-  onError?: (error: unknown) => void,
-): T;
+export function safeExec<T>(fn: () => T, fallback: T, onError?: (error: unknown) => void): T;
 
 /**
  * Safely executes a synchronous function within a try/catch block without a fallback value.

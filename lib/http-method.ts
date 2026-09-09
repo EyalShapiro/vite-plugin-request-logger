@@ -12,11 +12,7 @@ export type HttpMethodWithBody = (typeof METHODS_WITH_BODY)[number];
  * Type representing valid HTTP methods supported by Node.js http module and standard web clients.
  */
 export type HttpMethodType =
-  | 'GET'
-  | HttpMethodWithBody
-  | 'HEAD'
-  | 'OPTIONS'
-  | (RequestInit['method'] & {});
+  'GET' | HttpMethodWithBody | 'HEAD' | 'OPTIONS' | (RequestInit['method'] & {});
 
 /**
  * Type representing HTTP response status codes as numbers or string numbers.

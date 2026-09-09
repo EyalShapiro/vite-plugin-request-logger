@@ -19,17 +19,17 @@ Open [http://localhost:3000](http://localhost:3000) (or Vite assigned port).
 ## ⚙️ Vite Configuration (`vite.config.ts`)
 
 ```ts
-import vike from "vike/plugin";
-import { defineConfig } from "vite";
-import vikeSolid from "vike-solid/vite";
-import { viteRequestLogger } from "vite-plugin-request-logger";
+import vike from 'vike/plugin';
+import { defineConfig } from 'vite';
+import vikeSolid from 'vike-solid/vite';
+import { viteRequestLogger } from 'vite-plugin-request-logger';
 
 export default defineConfig({
   plugins: [
     vike(),
     vikeSolid(),
     viteRequestLogger({
-      prefix: "/api",
+      prefix: '/api',
       logBody: true,
     }),
   ],
@@ -37,4 +37,5 @@ export default defineConfig({
 ```
 
 ---
-*Created by Eyal Shapiro*
+
+_Created by Eyal Shapiro_

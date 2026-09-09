@@ -9,5 +9,6 @@ node server.js
 ```
 
 Then visit:
+
 - `http://localhost:4000/api/users` (will be logged in terminal with response timing and status)
 - `http://localhost:4000/health` (ignored via `ignorePaths`)

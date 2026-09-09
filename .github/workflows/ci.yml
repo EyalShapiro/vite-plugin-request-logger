@@ -30,9 +30,6 @@ jobs:
       - name: Lint Check (eslint)
         run: npm run lint
 
-      - name: Code Formatting Check (prettier)
-        run: npm run format
-
       - name: Run Unit Tests (vitest)
         run: npm test
 

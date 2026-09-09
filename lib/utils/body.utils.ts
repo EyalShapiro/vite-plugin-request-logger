@@ -78,7 +78,8 @@ export function formatRequestBody(candidateBody: unknown, options: LoggerOptions
     }
   } else if (typeof candidateBody === 'object') {
     const redactedObj = redact(candidateBody, options.redactKeys);
-    formatted = safeJsonStringify(redactedObj, { space: 2 }) ?? JSON.stringify(candidateBody, null, 2);
+    formatted =
+      safeJsonStringify(redactedObj, { space: 2 }) ?? JSON.stringify(candidateBody, null, 2);
   } else {
     formatted = String(candidateBody);
   }

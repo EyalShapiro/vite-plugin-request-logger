@@ -1,7 +1,7 @@
 // https://vike.dev/data
 
-import { useConfig } from "vike-solid/useConfig";
-import type { Movie, MovieDetails } from "../types.js";
+import { useConfig } from 'vike-solid/useConfig';
+import type { Movie, MovieDetails } from '../types.js';
 
 export type Data = Awaited<ReturnType<typeof data>>;
 
@@ -9,7 +9,7 @@ export async function data() {
   // https://vike.dev/useConfig
   const config = useConfig();
 
-  const response = await fetch("https://brillout.github.io/star-wars/api/films.json");
+  const response = await fetch('https://brillout.github.io/star-wars/api/films.json');
   const moviesData = (await response.json()) as MovieDetails[];
 
   config({

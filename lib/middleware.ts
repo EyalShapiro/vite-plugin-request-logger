@@ -43,14 +43,12 @@ const ASSET_REGEX = /\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|webp|
 export function shouldSkip(url: string | undefined, options: LoggerOptions): boolean {
   if (!url) return false;
 
-  if (options.skipAssets && ASSET_REGEX.test(url)) {
-    return true;
-  }
+  if (options.skipAssets && ASSET_REGEX.test(url)) return true;
 
   if (options.ignorePaths && options.ignorePaths.length > 0) {
-    return options.ignorePaths.some((path) =>
-      typeof path === 'string' ? url.startsWith(path) : path.test(url),
-    );
+    return options.ignorePaths.some((path) => {
+      return typeof path === 'string' ? url.startsWith(path) : path.test(url);
+    });
   }
 
   return false;
@@ -82,9 +80,7 @@ export function getShouldLog(
   return safeExec(
     () => {
       if (shouldSkip(url, options)) return false;
-      if (options.filter) {
-        return Boolean(options.filter(req));
-      }
+      if (options.filter) return Boolean(options.filter(req));
       return url.startsWith(normalizedPrefix);
     },
     false,

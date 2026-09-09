@@ -5,6 +5,7 @@
 ## 🚀 Overview
 
 This example demonstrates how `vite-plugin-request-logger` captures, intercepts, and formats HTTP requests sent using:
+
 - **Axios Custom Instance** (`apiClient = axios.create(...)`)
 - **TanStack React Query** (`useQuery`, `useMutation`)
 - **Browser Client Interceptor** (logs in DevTools console)
@@ -13,11 +14,13 @@ This example demonstrates how `vite-plugin-request-logger` captures, intercepts,
 ## 🛠️ Getting Started
 
 Run from root directory:
+
 ```bash
 npm run example:react-query
 ```
 
 Or inside `example/react-query-axios`:
+
 ```bash
 npm install
 npm run dev
@@ -46,4 +49,5 @@ export default defineConfig({
 ```
 
 ---
-*Created by Eyal Shapiro*
+
+_Created by Eyal Shapiro_
