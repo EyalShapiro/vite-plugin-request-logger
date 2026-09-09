@@ -26,7 +26,31 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       }
+    },
+    "./middleware": {
+      "import": {
+        "types": "./dist/middleware.d.ts",
+        "default": "./dist/middleware.js"
+      },
+      "require": {
+        "types": "./dist/middleware.d.cts",
+        "default": "./dist/middleware.cjs"
+      }
+    },
+    "./types": {
+      "import": {
+        "types": "./dist/types.d.ts",
+        "default": "./dist/types.js"
+      },
+      "require": {
+        "types": "./dist/types.d.cts",
+        "default": "./dist/types.cjs"
+      }
     }
+  },
+  "bin": {
+    "vite-plugin-request-logger": "./dist/cli.js",
+    "vprl": "./dist/cli.js"
   },
   "files": [
     "dist",
@@ -45,6 +69,13 @@
     "test:all": "npm run typecheck && npm run typecheck:examples && npm test",
     "example:advanced": "cd example/advanced && npm run dev",
     "example:custom": "cd example/custom-features && npm run dev",
+    "example:express": "cd example/express-standalone && npm start",
+    "example:react": "cd example/react-example && npm run dev",
+    "example:react-query": "cd example/react-query-axios && npm run dev",
+    "example:solid": "cd example/solid-ts && npm run dev",
+    "example:react:build": "cd example/react-example && npm run build",
+    "example:react:preview": "cd example/react-example && npm run preview",
+    "example:vite-node": "cd example/vite-node-server && npm run dev",
     "prepublishOnly": "npm run build && npm run test",
     "publish:all": "npm publish",
     "version:patch": "npm run prepublishOnly && npm version patch && npm run publish:all",

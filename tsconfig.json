@@ -12,6 +12,6 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true
   },
-  "include": ["lib/src/**/*", "lib/index.ts", "lib/types.ts"],
+  "include": ["lib/**/*"],
   "exclude": ["node_modules", "dist", "example"]
 }
