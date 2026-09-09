@@ -1,3 +1,4 @@
+/* eslint-env browser */
 const REQUESTS = Object.freeze([
   { method: 'POST', url: '/api/users', body: { name: 'Alice', password: 's3cr3t' } },
   { method: 'PUT', url: '/api/users/1', body: { name: 'Bob', token: 'tok123' } },
@@ -65,9 +66,9 @@ function main() {
     logEl.replaceChildren();
   });
 
-  const btnGroup = document.querySelector('.btn-group');
+  const btnGroup = window.document.querySelector('.btn-group');
   for (const { method, url, body } of REQUESTS) {
-    const button = document.createElement('button');
+    const button = window.document.createElement('button');
 
     button.className = `btn-${method.toLowerCase()}`;
     button.textContent = `${method} ${url}`;

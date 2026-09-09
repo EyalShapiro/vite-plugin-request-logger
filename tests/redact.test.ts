@@ -178,5 +178,50 @@ describe('Redaction & Body / Header Processing', () => {
       const logOutput = infoSpy.mock.calls[0][0] as string;
       expect(logOutput).toContain('[truncated]');
     });
+
+    it('should log body when req.body object is set by downstream middleware or body-parser', () => {
+      const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+
+      const plugin = viteRequestLogger({
+        prefix: '/api',
+        logBody: true,
+        redactKeys: ['secretToken'],
+        colors: false,
+      });
+      let middleware: any;
+      const mockServer = {
+        middlewares: {
+          use: (fn: any) => {
+            middleware = fn;
+          },
+        },
+      } as any;
+
+      (plugin.configureServer as (server: any) => void)(mockServer);
+
+      const req = {
+        url: '/api/todos',
+        method: 'POST',
+      } as any;
+      const next = vi.fn(() => {
+        // Downstream body-parser runs and attaches parsed body to req.body
+        req.body = {
+          title: 'Learn Vite Request Logger',
+          secretToken: 'super-secret-123',
+        };
+      });
+      const originalEnd = vi.fn();
+      const res = { statusCode: 200, end: originalEnd } as any;
+
+      middleware(req, res, next);
+      res.end();
+
+      expect(infoSpy).toHaveBeenCalled();
+      const logOutput = infoSpy.mock.calls[0][0] as string;
+      expect(logOutput).toContain('Body:');
+      expect(logOutput).toContain('Learn Vite Request Logger');
+      expect(logOutput).toContain('[REDACTED]');
+      expect(logOutput).not.toContain('super-secret-123');
+    });
   });
 });

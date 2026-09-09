@@ -25,14 +25,23 @@ export default defineConfig({
             res.statusCode = statusCode;
             res.setHeader('Content-Type', 'application/json');
 
-            res.end(
-              JSON.stringify({
-                status: statusCode >= 400 ? 'error' : 'success',
-                statusCode,
-                path: req.url,
-                method: req.method,
-              }),
-            );
+            const sendResponse = () => {
+              res.end(
+                JSON.stringify({
+                  status: statusCode >= 400 ? 'error' : 'success',
+                  statusCode,
+                  path: req.url,
+                  method: req.method,
+                }),
+              );
+            };
+
+            if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
+              req.on('data', () => {});
+              req.on('end', sendResponse);
+            } else {
+              sendResponse();
+            }
 
             return;
           }

@@ -1,5 +1,3 @@
-# vite-node-server — vite-plugin-request-logger example
-
 A runnable example showing how to embed a **pure Node.js HTTP API server** inside the Vite dev server — with **zero extra runtime dependencies** (no Express, Fastify, or Koa).
 
 Everything runs in a **single process** via Vite's `configureServer` plugin hook and Node.js `IncomingMessage` / `ServerResponse` objects.

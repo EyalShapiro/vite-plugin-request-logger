@@ -31,11 +31,8 @@ app.get('/api/users', (req, res) => {
 });
 
 // POST API endpoint (demonstrates JSON body logging and sensitive key redaction)
-app.post('/api/login', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Logged in successfully',
-  });
+app.post('/api/login', (_req, res) => {
+  res.status(200).json({ success: true, message: 'Logged in successfully' });
 });
 
 // Ignored endpoint (will not appear in logs)
