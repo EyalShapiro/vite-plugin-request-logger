@@ -1,5 +1,5 @@
 {
-  "name": "vite-plugin-request-logger",
+  "name": "@eyalshapiro/vite-plugin-request-logger",
   "version": "1.2.5",
   "description": "A robust, Morgan-like HTTP request logger plugin for Vite supporting Vite 5, 6, 7, 8+ with body logging and TypeScript support.",
   "type": "module",
@@ -16,6 +16,9 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "exports": {
     ".": {
       "import": {
