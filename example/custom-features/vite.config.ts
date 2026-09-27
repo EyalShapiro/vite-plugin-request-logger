@@ -1,4 +1,4 @@
-import { defineConfig, type PluginOption } from 'vite';
+import { defineConfig, type PluginOption, type Logger } from 'vite';
 import viteRequestLogger from 'vite-plugin-request-logger';
 
 export default defineConfig({
@@ -12,19 +12,52 @@ export default defineConfig({
       customMsg: (_req, _res, responseTimeMs) =>
         responseTimeMs > 100 ? '⚠️ [SLOW REQUEST]' : '⚡ [FAST]',
 
-      // Custom logger instance
+      // 👉 Use Vite's own logger (set at plugin load time via configResolved hook)
+      // The `viteLogger()` helper below bridges Vite's Logger to our CustomLogger interface.
+      // For the purposes of this example we configure it directly here:
       logger: {
-        info: (msg) => console.info(`[CUSTOM-LOGGER-INFO] ${msg}`),
-        error: (msg, ...args) => console.error(`[CUSTOM-LOGGER-ERROR] ${msg}`, ...args),
+        info: (...args) => viteLoggerBridge.info(args.join(' ')),
+        error: (...args) => viteLoggerBridge.error(args.join(' ')),
       },
 
       format: 'dev',
       colors: true,
       logBody: true,
     }),
+
+    // This plugin captures Vite's native Logger and shares it with the request logger
+    viteLoggerPlugin(),
   ],
   server: { port: 3002, host: true },
 });
+
+// ── Vite Logger Bridge ───────────────────────────────────────────────────────
+//
+// Vite's `configResolved` hook exposes `config.logger`. We capture it here so
+// the request logger emits through Vite's own output (which is already set up
+// with prefixes, colors, and log-level filtering).
+
+let viteLoggerBridge: Logger = {
+  info: console.info.bind(console),
+  warn: console.warn.bind(console),
+  error: console.error.bind(console),
+  clearScreen: () => {},
+  hasErrorLogged: () => false,
+  hasWarned: false,
+  warnOnce: console.warn.bind(console),
+};
+
+function viteLoggerPlugin(): PluginOption {
+  return {
+    name: 'vprl-vite-logger-bridge',
+    configResolved(config) {
+      // After Vite has resolved the full config, take its native logger
+      viteLoggerBridge = config.logger;
+    },
+  };
+}
+
+// ── Mock API for demo ────────────────────────────────────────────────────────
 
 function mockApi(): PluginOption {
   return {

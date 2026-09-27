@@ -24,18 +24,15 @@ function main() {
   async function req(method, url, body) {
     const opts = {
       method,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
     };
 
-    if (body) {
-      opts.body = JSON.stringify(body);
-    }
+    if (body) opts.body = JSON.stringify(body);
 
     const t = performance.now();
 
-    appendLog('log-info', `→ ${method} ${url}${body ? `  ${JSON.stringify(body)}` : ''}`);
+    appendLog('log-info', `→ ${method} ${url}${opts.body ?? ''}`);
 
     try {
       const res = await fetch(url, opts);

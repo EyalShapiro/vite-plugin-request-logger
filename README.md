@@ -96,17 +96,44 @@ That's it. All requests to `/api/*` will be logged in your terminal automaticall
 
 ## 💻 Vite CLI Usage
 
-You can launch Vite directly with `vite-plugin-request-logger` enabled **without editing any configuration files** using our built-in CLI binary (`vprl` / `vite-plugin-request-logger`):
+Launch Vite **without editing any config files** using the built-in `vprl` / `vite-plugin-request-logger` binary:
 
 ```bash
-# Start Vite dev server with request logging
+# Start Vite dev server with request logging (default port: 5173)
 npx vprl dev
+npx vprl serve    # alias for dev
 
-# Start preview server with request logging
+# Start the Vite preview server with request logging (default port: 4173)
 npx vprl preview
 
-# Run Vite build with request logging
+# Run a Vite build (plugin active during build transforms)
 npx vprl build
+
+# Print usage help
+npx vprl --help
+npx vprl help
+```
+
+The CLI automatically enables `logBody: true` and `format: 'dev'`. No `vite.config.ts` changes required.
+
+### Install globally for convenience
+
+```bash
+npm install -g vite-plugin-request-logger
+# Then just:
+vprl dev
+vprl preview
+```
+
+### Integrate with existing `package.json` scripts
+
+```json
+{
+  "scripts": {
+    "dev": "vprl dev",
+    "preview": "vprl preview"
+  }
+}
 ```
 
 ---
@@ -493,6 +520,86 @@ server.listen(3000);
 
 ---
 
+## 🌐 Browser Telemetry & Privacy (`@vprl/client`)
+
+`@vprl/client` is a lightweight, privacy-first browser telemetry client that captures user interactions (clicks, form inputs, uncaught errors) and sends them in efficient batches to your server with built-in PII redaction and resilience.
+
+### Basic Usage
+
+```ts
+import { VPRLClient } from 'vite-plugin-request-logger/client';
+
+const client = new VPRLClient({
+  endpoint: '/api/telemetry',
+});
+```
+
+### Configurable Sensitive Input Types & PII Masking
+
+By default, `@vprl/client` automatically redacts sensitive input types (`'password'`, `'email'`, `'tel'`, `'card'`) as `[REDACTED]`. You can configure custom sensitive input types (such as `ssn`, `pin`, `credit-card`, etc.) or supply custom sanitizers:
+
+```ts
+import { VPRLClient, DEFAULT_SENSITIVE_INPUT_TYPES } from 'vite-plugin-request-logger/client';
+
+const client = new VPRLClient({
+  endpoint: '/api/telemetry',
+  batchSize: 10,
+  flushInterval: 2000,
+
+  // When false, non-sensitive inputs (like text) pass through while sensitive types are redacted
+  maskInputValues: false,
+
+  // Add extra sensitive input types on top of 'password', 'email', 'tel', 'card'
+  additionalSensitiveInputTypes: ['ssn', 'pin', 'credit-card', 'search'],
+
+  // Or completely override the sensitive types list:
+  // sensitiveInputTypes: ['password', 'ssn', 'pin'],
+
+  // Redact elements matching CSS selectors
+  maskSelectors: ['.sensitive', '[data-vprl-mask]', '#bank-account'],
+
+  // Custom sanitizer override (optional)
+  customSanitizer: (element, value) => {
+    if (element.hasAttribute('data-allow-plain')) return value;
+    return value.replace(/\d{4}/g, '****');
+  },
+
+  // Lifecycle hooks
+  beforeSend: (event) => {
+    // Return modified event, or null to drop
+    return event;
+  },
+  onFlushSuccess: (events) => {
+    console.log(`Delivered ${events.length} telemetry events`);
+  },
+});
+```
+
+### `@vprl/client` Configuration Options
+
+| Option | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `endpoint` | `string` | **(Required)** | The server endpoint URL where batched telemetry is POSTed. |
+| `batchSize` | `number` | `10` | Max events per batch POST. Triggers immediate flush when reached. |
+| `flushInterval` | `number` | `2000` | Interval in ms for periodic automatic flushes. |
+| `maxQueueSize` | `number` | `100` | Max in-memory queue size before dropping oldest events (FIFO). |
+| `maskInputValues` | `boolean` | `true` | When `true`, masks all input fields. When `false`, masks only sensitive types. |
+| `sensitiveInputTypes` | `string[]` | `['password', 'email', 'tel', 'card']` | Overrides the list of input types that are always redacted. |
+| `additionalSensitiveInputTypes` | `string[]` | `[]` | Appends extra input types to be redacted alongside defaults. |
+| `maskSelectors` | `string[]` | `['.sensitive', '[data-vprl-mask]']` | CSS selectors for elements whose content is always redacted. |
+| `customSanitizer` | `(element, value) => string` | `undefined` | Custom function to sanitize/redact values before queueing. |
+| `enableClickTracking` | `boolean` | `true` | Automatic click tracking with smart element bubbling. |
+| `enableInputTracking` | `boolean` | `true` | Automatic input/change tracking on form fields. |
+| `enableErrorTracking` | `boolean` | `true` | Automatic uncaught error tracking (`window.onerror`). |
+| `beforeSend` | `(event) => VPRLEvent \| null` | `undefined` | Hook to transform or filter events before queueing. |
+| `onFlushSuccess` | `(events) => void` | `undefined` | Hook called after a batch is successfully delivered. |
+| `onFlushError` | `(error, events) => void` | `undefined` | Hook called when a batch delivery fails. |
+| `customHeaders` | `Record<string, string> \| (() => ...)` | `undefined` | Additional HTTP headers sent with each flush. |
+| `maxFailures` | `number` | `5` | Failures before opening the circuit breaker. |
+| `cooldownPeriod` | `number` | `30000` | Circuit breaker recovery cooldown in ms. |
+
+---
+
 ## How It Works
 
 The plugin registers a middleware in Vite's dev server using `configureServer`. It patches `res.end` to capture the status code and response time at the exact moment the response is sent — giving accurate timing that includes proxy round-trips.
@@ -507,18 +614,20 @@ The plugin registers a middleware in Vite's dev server using `configureServer`. 
 
 ## Runnable Examples
 
-Five standalone examples are bundled under [`example/`](./example/):
+Standalone examples are bundled under [`example/`](./example/):
 
-| Example                                               | Port | Description                                           |
-| :---------------------------------------------------- | :--- | :---------------------------------------------------- |
-| [`react-query-axios`](./example/react-query-axios/)   | 5180 | React 19 + `@tanstack/react-query` + Axios Instance   |
-| [`solid-ts`](./example/solid-ts/)                     | 5181 | SolidJS + TypeScript (`solid-ts`) signal logging      |
-| [`client-interceptor`](./example/client-interceptor/) | 5173 | Dedicated browser fetch & XHR interceptor demo        |
-| [`advanced`](./example/advanced/)                     | 3001 | All plugin options · Vite 5 · mock API · file logging |
-| [`custom-features`](./example/custom-features/)       | 3002 | Custom `filter`, `customMsg`, Pino/Winston logger     |
-| [`vite-node-server`](./example/vite-node-server/)     | 3003 | Pure Node.js API embedded in Vite — no Express        |
-| [`react-example`](./example/react-example/)           | 3000 | React + Vite + axios                                  |
-| [`express-standalone`](./example/express-standalone/) | 4000 | Standalone Express server (no Vite)                   |
+| Example                                               | Port | Description                                                             |
+| :---------------------------------------------------- | :--- | :---------------------------------------------------------------------- |
+| [`react-query-axios`](./example/react-query-axios/)   | 5180 | React 19 + `@tanstack/react-query` + Axios Instance                     |
+| [`solid-ts`](./example/solid-ts/)                     | 5181 | SolidJS + TypeScript (`solid-ts`) signal logging                        |
+| [`client-interceptor`](./example/client-interceptor/) | 5173 | Dedicated browser fetch & XHR interceptor demo                          |
+| [`advanced`](./example/advanced/)                     | 3001 | All plugin options · Vite 5 · mock API · file logging                   |
+| [`custom-features`](./example/custom-features/)       | 3002 | Custom filter, Vite logger bridge, client telemetry & PII redaction demo |
+| [`vite-node-server`](./example/vite-node-server/)     | 3003 | Pure Node.js API embedded in Vite — no Express                          |
+| [`react-example`](./example/react-example/)           | 3000 | React + Vite + axios                                                    |
+| [`express-standalone`](./example/express-standalone/) | 4000 | Standalone Express server (no Vite)                                     |
+| [`nextjs-ssr`](./example/nextjs-ssr/)                 | 3005 | **Next.js 14 App Router** — SSR custom server + Edge middleware         |
+| [`nginx-proxy`](./example/nginx-proxy/)               | 8080 | **Nginx Reverse Proxy** — `$request_id` distributed tracing with Docker |
 
 ### [`example/react-query-axios`](https://github.com/EyalShapiro/vite-plugin-request-logger/tree/main/example/react-query-axios) — React Query + Axios Instance
 

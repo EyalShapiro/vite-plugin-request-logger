@@ -2,72 +2,377 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Custom Features Example - vite-plugin-request-logger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Custom Features & Sensitive Types — vite-plugin-request-logger</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      :root {
+        --bg-main: #090d16;
+        --bg-card: #131b2e;
+        --bg-card-hover: #18223a;
+        --bg-input: #0b1120;
+        --bg-terminal: #050811;
+        --border-color: #1e293b;
+        --border-accent: #334155;
+        --primary: #38bdf8;
+        --primary-glow: rgba(56, 189, 248, 0.25);
+        --accent: #818cf8;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --tag-redacted-bg: rgba(239, 68, 68, 0.15);
+        --tag-redacted-border: rgba(239, 68, 68, 0.35);
+        --tag-redacted-text: #fca5a5;
+        --tag-plain-bg: rgba(16, 185, 129, 0.15);
+        --tag-plain-border: rgba(16, 185, 129, 0.35);
+        --tag-plain-text: #6ee7b7;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
+
       body {
-        font-family:
-          system-ui,
-          -apple-system,
-          sans-serif;
-        background: #0f172a;
-        color: #f8fafc;
-        padding: 2rem;
-        max-width: 800px;
-        margin: 0 auto;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        background: var(--bg-main);
+        color: var(--text-main);
+        padding: 1.5rem 1rem;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
+
+      .container {
+        width: 100%;
+        max-width: 860px;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      header {
+        margin-bottom: 0.5rem;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba(56, 189, 248, 0.1);
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        color: var(--primary);
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.65rem;
+        border-radius: 9999px;
+        margin-bottom: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
       h1 {
-        color: #38bdf8;
+        font-size: clamp(1.4rem, 4vw, 1.85rem);
+        font-weight: 700;
+        color: var(--text-main);
+        line-height: 1.25;
+        margin-bottom: 0.4rem;
       }
+
+      .subtitle {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+
       .card {
-        background: #1e293b;
-        padding: 1.5rem;
-        border-radius: 8px;
-        margin-bottom: 1rem;
-        border: 1px solid #334155;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.25rem;
+        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
       }
-      button {
-        background: #0284c7;
-        color: white;
-        border: none;
-        padding: 0.6rem 1.2rem;
-        border-radius: 6px;
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+        gap: 0.6rem;
+        margin-bottom: 1rem;
+      }
+
+      button.action-btn {
+        background: #1e293b;
+        color: #f1f5f9;
+        border: 1px solid var(--border-accent);
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
         font-weight: 600;
         cursor: pointer;
-        margin-right: 0.5rem;
-        margin-bottom: 0.5rem;
-        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        transition: all 0.2s ease;
+        min-height: 44px; /* Mobile touch friendly target */
+        text-align: center;
       }
-      button:hover {
-        background: #0369a1;
+
+      button.action-btn:hover,
+      button.action-btn:active {
+        background: #2563eb;
+        border-color: #3b82f6;
+        color: #ffffff;
+        box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
+        transform: translateY(-1px);
       }
-      #output {
-        background: #020617;
-        padding: 1rem;
-        border-radius: 6px;
-        font-family: monospace;
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+
+      .label-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      label {
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--text-muted);
+      }
+
+      input {
+        background: var(--bg-input);
+        border: 1px solid var(--border-accent);
+        color: var(--text-main);
+        padding: 0.65rem 0.85rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        min-height: 44px;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        width: 100%;
+      }
+
+      input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-glow);
+      }
+
+      .tag {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.15rem 0.45rem;
+        border-radius: 4px;
+        letter-spacing: 0.02em;
+      }
+
+      .tag-redacted {
+        background: var(--tag-redacted-bg);
+        border: 1px solid var(--tag-redacted-border);
+        color: var(--tag-redacted-text);
+      }
+
+      .tag-plain {
+        background: var(--tag-plain-bg);
+        border: 1px solid var(--tag-plain-border);
+        color: var(--tag-plain-text);
+      }
+
+      .terminal-box {
+        background: var(--bg-terminal);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 0.85rem;
+        font-family: 'Fira Code', monospace;
+        font-size: 0.8rem;
+        line-height: 1.5;
         white-space: pre-wrap;
-        margin-top: 1rem;
-        border: 1px solid #1e293b;
+        word-break: break-all;
+        color: #94a3b8;
+        max-height: 240px;
+        overflow-y: auto;
+      }
+
+      .terminal-header {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+      .dot-red { background: #ef4444; }
+      .dot-yellow { background: #f59e0b; }
+      .dot-green { background: #10b981; }
+
+      @media (max-width: 600px) {
+        body {
+          padding: 1rem 0.5rem;
+        }
+        .card {
+          padding: 1rem 0.75rem;
+        }
+        .btn-grid {
+          grid-template-columns: 1fr;
+        }
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
   <body>
-    <h1>🚀 Custom Features Example</h1>
-    <p>
-      Interactively test <code>filter</code>, <code>customMsg</code>, and <code>logger</code> in
-      Vite.
-    </p>
+    <div class="container">
+      <header>
+        <div class="badge">🚀 Vite Request Logger + Telemetry</div>
+        <h1>Custom Features & Sensitive Types</h1>
+        <p class="subtitle">
+          Test custom server filters, custom messages, and client-side PII masking with custom sensitive input types.
+        </p>
+      </header>
 
-    <div class="card">
-      <h3>Fire Test Requests</h3>
-      <button id="btn-api">GET /api/users (Logged by filter)</button>
-      <button id="btn-trpc">GET /trpc/getUser (Logged by filter)</button>
-      <button id="btn-slow">GET /api/slow (Triggers ⚠️ SLOW MSG)</button>
-      <button id="btn-ignored">GET /static/asset.js (Ignored by filter)</button>
+      <!-- Section 1: Server Logger Controls -->
+      <section class="card">
+        <div class="card-header">
+          <span class="card-title">🌐 1. Server Request Logger Filters</span>
+        </div>
+        <div class="btn-grid">
+          <button id="btn-api" class="action-btn">GET /api/users</button>
+          <button id="btn-trpc" class="action-btn">GET /trpc/getUser</button>
+          <button id="btn-slow" class="action-btn">GET /api/slow (Delayed)</button>
+          <button id="btn-ignored" class="action-btn">GET /static/asset.js</button>
+        </div>
+
+        <div class="terminal-box">
+          <div class="terminal-header">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+            <span style="font-size: 0.75rem; color: #64748b; margin-left: 0.5rem;">Server Response Console</span>
+          </div>
+          <div id="output">Click a request button above to see server response...</div>
+        </div>
+      </section>
+
+      <!-- Section 2: Client Telemetry & Privacy -->
+      <section class="card">
+        <div class="card-header">
+          <span class="card-title">🛡️ 2. Client Telemetry & PII Redaction</span>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Edit any field below and tab away or press Enter. Notice how default types (<code>password</code>, <code>email</code>, <code>tel</code>) and custom configured types (<code>ssn</code>, <code>pin</code>) are securely replaced with <code>[REDACTED]</code> while normal inputs remain visible!
+        </p>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <div class="label-row">
+              <label for="input-username">Username</label>
+              <span class="tag tag-plain">Plain</span>
+            </div>
+            <input id="input-username" type="text" name="username" placeholder="john_doe" value="john_doe" />
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="input-password">Password</label>
+              <span class="tag tag-redacted">Default Redacted</span>
+            </div>
+            <input id="input-password" type="password" name="password" placeholder="••••••••" value="Secret123!" />
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="input-email">Email</label>
+              <span class="tag tag-redacted">Default Redacted</span>
+            </div>
+            <input id="input-email" type="email" name="user_email" placeholder="user@domain.com" value="test@vprl.dev" />
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="input-tel">Phone</label>
+              <span class="tag tag-redacted">Default Redacted</span>
+            </div>
+            <input id="input-tel" type="tel" name="phone_number" placeholder="+1-555-0100" value="+1-555-0100" />
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="input-ssn">Social Security Number</label>
+              <span class="tag tag-redacted">Custom Redacted</span>
+            </div>
+            <input id="input-ssn" type="ssn" name="ssn" placeholder="123-45-6789" value="123-45-6789" />
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="input-pin">Security PIN</label>
+              <span class="tag tag-redacted">Custom Redacted</span>
+            </div>
+            <input id="input-pin" type="pin" name="security_pin" placeholder="9999" value="9999" />
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="input-notes">CSS Masked Field</label>
+              <span class="tag tag-redacted">Selector Redacted</span>
+            </div>
+            <input id="input-notes" type="text" name="private_notes" class="sensitive" placeholder="Secret..." value="Confidential Notes" />
+          </div>
+        </div>
+
+        <div class="terminal-box">
+          <div class="terminal-header">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+            <span style="font-size: 0.75rem; color: #64748b; margin-left: 0.5rem;">Live Telemetry Interceptor</span>
+          </div>
+          <div id="telemetry-output">Interact with buttons or fields above to see live telemetry...</div>
+        </div>
+      </section>
     </div>
-
-    <div id="output">Click a button above to send a request...</div>
 
     <script type="module" src="/main.ts"></script>
   </body>
