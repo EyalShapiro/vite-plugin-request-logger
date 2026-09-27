@@ -1,7 +1,7 @@
 import vike from 'vike/plugin';
 import { defineConfig } from 'vite';
 import vikeSolid from 'vike-solid/vite';
-import { viteRequestLogger } from '../../dist/index.js';
+import { viteRequestLogger } from 'vite-plugin-request-logger';
 
 export default defineConfig({
   plugins: [

@@ -24,7 +24,7 @@ jobs:
       - name: Install root dependencies
         run: npm ci
 
-      - name: Type Check — library (tsc)
+      - name: Type Check library (tsc)
         run: npm run typecheck
 
       - name: Lint Check (eslint)
@@ -37,18 +37,18 @@ jobs:
         run: npm run build
 
       # ── Example projects ────────────────────────────────────────────────────
-      - name: Install — example/advanced
+      - name: Install example/advanced
         run: npm ci
         working-directory: example/advanced
 
-      - name: Type Check — example/advanced (Vite 5)
+      - name: Type Check example/advanced (Vite 5)
         run: npx tsc --noEmit
         working-directory: example/advanced
 
-      - name: Install — example/custom-features
+      - name: Install example/custom-features
         run: npm ci
         working-directory: example/custom-features
 
-      - name: Type Check — example/custom-features (Vite 5)
+      - name: Type Check example/custom-features (Vite 5)
         run: npx tsc --noEmit
         working-directory: example/custom-features
