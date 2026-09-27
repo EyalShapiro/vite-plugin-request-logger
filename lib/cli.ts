@@ -9,10 +9,7 @@ async function main() {
 
   console.log('\x1b[36m%s\x1b[0m', '🚀 [vite-plugin-request-logger CLI] Initializing...');
 
-  const options: LoggerOptions = {
-    logBody: true,
-    format: 'dev',
-  };
+  const options: LoggerOptions = { logBody: true, format: 'dev' };
 
   if (command === 'dev' || command === 'serve') {
     const server = await createServer({

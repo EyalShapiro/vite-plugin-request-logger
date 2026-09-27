@@ -1,0 +1,25 @@
+{
+  "name": "nextjs-ssr-example",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Next.js 14 App Router example with vite-plugin-request-logger standalone middleware",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --port 3005",
+    "build": "next build",
+    "start": "node server.mjs",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "vite-plugin-request-logger": "file:../.."
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.3.0"
+  }
+}

@@ -1,7 +1,16 @@
 import { defineConfig } from 'tsup';
 
 const config = defineConfig({
-  entry: ['lib/index.ts', 'lib/middleware.ts', 'lib/types.ts', 'lib/cli.ts'],
+  entry: [
+    'lib/index.ts',
+    'lib/middleware.ts',
+    'lib/types.ts',
+    'lib/cli.ts',
+    'lib/client.ts',
+    'lib/transports/index.ts',
+    'lib/trace.ts',
+    'lib/fetchInterceptor.ts',
+  ],
   format: ['cjs', 'esm'],
   dts: { resolve: true },
   clean: true,
