@@ -42,4 +42,6 @@ export const DEFAULT_OPTIONS = {
   skipAssets: false,
   /** Catch internal errors silently — never crash the dev server. */
   silentOnError: true,
+  /** Disable client-side DevTools logging */
+  disableClientLogs: false,
 } satisfies LoggerOptions;

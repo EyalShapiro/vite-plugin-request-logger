@@ -77,6 +77,8 @@ export function viteRequestLogger(userOptions: LoggerOptions = {}): VitePluginOb
     },
 
     transformIndexHtml(html: string) {
+      if (userOptions.disableClientLogs) return { html, tags: [] };
+
       return {
         html,
         tags: [

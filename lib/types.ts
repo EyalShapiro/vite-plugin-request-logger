@@ -192,4 +192,12 @@ export interface LoggerOptions {
    * @default true
    */
   silentOnError?: boolean;
+
+  /**
+   * If `true`, the plugin will not inject the client-side interceptor script into the browser.
+   * This disables the network request logs that appear in the browser's DevTools console.
+   *
+   * @default false
+   */
+  disableClientLogs?: boolean;
 }
