@@ -1,5 +1,6 @@
 import { memo, useMemo } from 'react';
 import { useRouteError, Link } from 'react-router';
+
 import { getErrorDetails } from './getErrorDetails';
 
 function ErrorPage() {

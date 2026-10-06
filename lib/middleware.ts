@@ -9,6 +9,8 @@ import { type RequestWithBody, parseStreamChunk } from './utils/body.utils';
 import { shouldSkip, getShouldLog } from './utils/filter.utils';
 import { interceptResponseEnd } from './utils/responseLogger';
 
+import { CLIENT_LOG_ENDPOINT, handleClientLogEndpoint } from './utils/clientLogHandler';
+
 export { shouldSkip, getShouldLog };
 
 /**
@@ -39,6 +41,11 @@ export function createRequestLoggerMiddleware(userOptions: LoggerOptions = {}): 
   ): void {
     try {
       const url = req.url || '/';
+
+      if (url === CLIENT_LOG_ENDPOINT || url.startsWith(`${CLIENT_LOG_ENDPOINT}?`)) {
+        handleClientLogEndpoint(req, res, options, logger);
+        return;
+      }
 
       const shouldLog = getShouldLog(options, req, url, normalizedPrefix, logger);
       if (!shouldLog) {

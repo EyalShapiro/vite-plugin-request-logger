@@ -2,7 +2,7 @@ import { viteRequestLogger } from './plugin';
 
 // Main Vite plugin and client interceptor exports
 export { viteRequestLogger, PLUGIN_NAME } from './plugin';
-export { CLIENT_INTERCEPTOR_SCRIPT } from './client-interceptor';
+// export { CLIENT_INTERCEPTOR_SCRIPT } from './client-interceptor';
 export type { VitePluginObject, InjectedHtmlTag, MiddlewareServer } from './plugin';
 
 // Standalone Connect / Express middleware export

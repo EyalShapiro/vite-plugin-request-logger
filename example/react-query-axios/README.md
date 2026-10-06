@@ -55,7 +55,7 @@ export default defineConfig({
       logBody: true,
       logHeaders: true,
       redactKeys: ['token', 'password'],
-      disableClientLogs: false,
+      disableClientLogs: true,
     }),
   ],
 });

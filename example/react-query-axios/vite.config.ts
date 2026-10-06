@@ -14,6 +14,7 @@ export default defineConfig(({ mode }) => {
       react(),
       babelPlugin({ presets: [reactCompilerPreset()] }),
       viteRequestLogger({
+        disableClientLogs: true,
         prefix: '/api',
         logBody: true,
         logHeaders: false,
@@ -21,7 +22,7 @@ export default defineConfig(({ mode }) => {
       }),
       mockApiPlugin(),
     ],
-    server: { port: Number(env.VITE_PORT ?? 5180), host: true, strictPort: true, cors: true },
+    server: { port: Number(env.VITE_PORT ?? 5180), host: true, cors: true },
     build: { outDir: 'dist', sourcemap: IS_PROD ? 'hidden' : true, target: 'esnext' },
   };
 });

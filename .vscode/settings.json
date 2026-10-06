@@ -5,13 +5,16 @@
     "source.fixAll.eslint": "explicit"
   },
 
+  "css.lint.unknownAtRules": "ignore",
+
   "typescript.tsdk": "node_modules/typescript/lib",
 
   "recommendations": [
     "esbenp.prettier-vscode",
     "dbaeumer.vscode-eslint",
     "YoavBls.pretty-ts-errors",
-    "ms-vscode.vscode-typescript-next"
+    "ms-vscode.vscode-typescript-next",
+    "bradlc.vscode-tailwindcss"
   ],
   "[json]": {
     "editor.defaultFormatter": "vscode.json-language-features"
