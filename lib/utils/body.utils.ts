@@ -6,6 +6,19 @@ import { redact, redactWithRegex } from './redact';
 import { truncateBody } from './helpers';
 
 /**
+ * Safely parses a stream chunk into a UTF-8 string.
+ *
+ * @param {unknown} chunk - The incoming data chunk (Buffer, string, or unknown).
+ * @returns {string} The parsed string.
+ */
+export function parseStreamChunk<T = unknown>(chunk: T): string {
+  if (!chunk) return '';
+  if (Buffer.isBuffer(chunk)) return chunk.toString('utf8');
+  if (typeof chunk === 'string') return chunk;
+  return String(chunk) ?? '';
+}
+
+/**
  * Extended IncomingMessage interface representing potential request body locations
  * across different HTTP servers, middleware chains, and body-parsers.
  */

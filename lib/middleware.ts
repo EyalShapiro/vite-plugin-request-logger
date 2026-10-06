@@ -5,7 +5,7 @@ import { normalizePrefix } from './utils/helpers';
 import { safeExec } from './utils/safe-exec';
 import { safeJsonStringify } from './utils/json.utils';
 import { resolveLogger } from './utils/resolveLogger';
-import { type RequestWithBody } from './utils/body.utils';
+import { type RequestWithBody, parseStreamChunk } from './utils/body.utils';
 import { shouldSkip, getShouldLog } from './utils/filter.utils';
 import { interceptResponseEnd } from './utils/responseLogger';
 
@@ -60,15 +60,9 @@ export function createRequestLoggerMiddleware(userOptions: LoggerOptions = {}): 
         }
 
         if (typeof req.on === 'function') {
-          req.on('data', (chunk: unknown) => {
+          req.on('data', (chunk) => {
             safeExec(() => {
-              if (chunk) {
-                rawStreamBody += Buffer.isBuffer(chunk)
-                  ? chunk.toString('utf8')
-                  : typeof chunk === 'string'
-                    ? chunk
-                    : String(chunk);
-              }
+              rawStreamBody += parseStreamChunk(chunk);
             });
           });
         }

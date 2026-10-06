@@ -1,4 +1,4 @@
-import type { LoggerFormat, LoggerOption, LoggerOptions } from '../types';
+import type { LoggerOptions } from '../types';
 
 const REDACT_KEYS = [
   'token',
@@ -9,7 +9,7 @@ const REDACT_KEYS = [
   'apiKey',
   'api_key',
   'authorization_token',
-] as const;
+] as const satisfies LoggerOptions['redactKeys'];
 
 export const DEFAULT_OPTIONS = {
   /** URL prefix — only requests starting with this path will be logged (when filter is not provided). */
@@ -19,9 +19,9 @@ export const DEFAULT_OPTIONS = {
   /** Custom message callback appended to log lines. */
   customMsg: undefined,
   /** Custom logger instance or preset ('console' | 'silent'). */
-  logger: 'console' as LoggerOption,
+  logger: 'console',
   /** Log format preset. */
-  format: 'dev' as LoggerFormat,
+  format: 'dev',
   /** Log request bodies for POST/PUT/PATCH/DELETE. */
   logBody: true,
   /** Log request headers. */
@@ -31,7 +31,7 @@ export const DEFAULT_OPTIONS = {
   /** Keys whose values are replaced with [REDACTED] in body and headers. */
   redactKeys: REDACT_KEYS,
   /** File path to append logs into. Undefined means no file logging. */
-  logToFile: undefined as string | undefined,
+  logToFile: undefined,
   /** Enable ANSI colors in terminal output. */
   colors: true,
   /** Locale for timestamp formatting. */
@@ -42,4 +42,6 @@ export const DEFAULT_OPTIONS = {
   skipAssets: false,
   /** Catch internal errors silently — never crash the dev server. */
   silentOnError: true,
+  /** Disable client-side DevTools logging */
+  disableClientLogs: false,
 } satisfies LoggerOptions;
