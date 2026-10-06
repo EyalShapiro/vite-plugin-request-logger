@@ -253,5 +253,45 @@ describe('Middleware & Request Interception', () => {
       expect(infoSpy).toHaveBeenCalledTimes(1);
       expect(errorSpy).not.toHaveBeenCalled();
     });
+
+    it('should process client log reports sent to /__vprl_log', () => {
+      const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+
+      const middleware = createRequestLoggerMiddleware({ colors: false });
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+      const callbacks: Record<string, Function> = {};
+      const req = {
+        url: '/__vprl_log',
+        method: 'POST',
+        on: (event: string, cb: Function) => {
+          callbacks[event] = cb;
+        },
+      } as any;
+
+      const res = {
+        statusCode: 0,
+        setHeader: vi.fn(),
+        end: vi.fn(),
+      } as any;
+
+      middleware(req, res, vi.fn());
+
+      callbacks['data']?.(
+        JSON.stringify({
+          method: 'GET',
+          url: 'https://dog.ceo/api/breed/hound/images/random',
+          status: 200,
+          duration: '120.5',
+        }),
+      );
+      callbacks['end']?.();
+
+      expect(res.statusCode).toBe(200);
+      expect(res.end).toHaveBeenCalledWith('ok');
+      expect(infoSpy).toHaveBeenCalledTimes(1);
+      expect(infoSpy.mock.calls[0][0]).toContain('[CLIENT] GET');
+      expect(infoSpy.mock.calls[0][0]).toContain('https://dog.ceo/api/breed/hound/images/random');
+    });
   });
 });

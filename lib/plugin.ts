@@ -1,6 +1,6 @@
 import type { LoggerOptions } from './types';
 import { createRequestLoggerMiddleware, type ConnectMiddleware } from './middleware';
-import { CLIENT_INTERCEPTOR_SCRIPT } from './client-interceptor';
+import { getClientInterceptorScript } from './client-interceptor';
 
 export const PLUGIN_NAME = 'vite-plugin-request-logger';
 
@@ -77,7 +77,9 @@ export function viteRequestLogger(userOptions: LoggerOptions = {}): VitePluginOb
     },
 
     transformIndexHtml(html: string) {
-      if (userOptions.disableClientLogs) return { html, tags: [] };
+      const scriptCode = getClientInterceptorScript({
+        disableDevToolsConsole: Boolean(userOptions.disableClientLogs),
+      });
 
       return {
         html,
@@ -86,7 +88,7 @@ export function viteRequestLogger(userOptions: LoggerOptions = {}): VitePluginOb
             tag: 'script',
             attrs: { type: 'module' },
             injectTo: 'head-prepend' as const,
-            children: CLIENT_INTERCEPTOR_SCRIPT,
+            children: scriptCode,
           },
         ],
       };

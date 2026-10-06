@@ -54,4 +54,15 @@ describe('Vite Plugin Lifecycle & Setup', () => {
     expect(result.tags[0].children).toContain('window.fetch');
     expect(result.tags[0].children).toContain('XMLHttpRequest');
   });
+
+  it('should inject client interception script with disableConsole set to true when disableClientLogs is enabled', () => {
+    const plugin = viteRequestLogger({ disableClientLogs: true });
+    const transformHtml = plugin.transformIndexHtml as (html: string) => any;
+    const result = transformHtml('<html><head></head><body></body></html>');
+
+    expect(result.tags).toBeDefined();
+    expect(result.tags.length).toBe(1);
+    expect(result.tags[0].children).toContain('var disableConsole = true');
+    expect(result.tags[0].children).toContain('sendServerLog');
+  });
 });
