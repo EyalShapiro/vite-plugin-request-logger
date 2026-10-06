@@ -5,6 +5,10 @@
   "type": "module",
   "author": "Eyal Shapiro",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "homepage": "https://www.npmjs.com/package/vite-plugin-request-logger",
   "repository": {
     "type": "git",
