@@ -8,7 +8,8 @@ on:
 
 permissions:
   contents: write # Needed to create GitHub Releases
-  packages: write # Needed for NPM if using github packages, though we publish to npmjs
+  packages: write # Needed for NPM packages
+  id-token: write # Needed for provenance when publishing to NPM
 
 jobs:
   publish:
@@ -34,6 +35,11 @@ jobs:
       - name: Build Package
         run: npm run build
 
+      - name: Validate NPM Authentication
+        run: npm whoami
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Publish to NPM
         run: npm publish --access public
         env:
@@ -43,4 +49,3 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
-
