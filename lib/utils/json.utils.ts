@@ -93,6 +93,9 @@ export function safeJsonStringify<T = unknown>(
       : { fallback: undefined, ...optionsOrFallback };
 
   try {
+    if (!obj) return fallback;
+    if (typeof obj === 'string') return obj;
+
     const result = JSON.stringify(obj, options?.replacer, options?.space);
     return result !== undefined ? result : fallback;
   } catch {
