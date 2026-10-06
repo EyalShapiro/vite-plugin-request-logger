@@ -1,13 +1,13 @@
-import { VPRLClient } from 'vite-plugin-request-logger/client';
+import { VPRLClient, type VPRLEvent } from 'vite-plugin-request-logger/client';
 
 const output = document.querySelector<HTMLPreElement>('#output')!;
 const telemetryOutput = document.querySelector<HTMLPreElement>('#telemetry-output')!;
 
 // ─── 1. Initialize VPRL Client with Custom Sensitive Types ───────────────────
 
-const capturedEvents: any[] = [];
+const capturedEvents: VPRLEvent[] = [];
 
-function appendTelemetryLog(event: any) {
+function appendTelemetryLog(event: VPRLEvent) {
   capturedEvents.unshift(event);
   if (capturedEvents.length > 10) capturedEvents.pop();
 

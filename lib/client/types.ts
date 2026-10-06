@@ -50,7 +50,7 @@ export interface VPRLEvent {
   /** CSS-like selector identifying the DOM element (e.g. `"button#checkout"`). */
   target?: string;
   /** Arbitrary key-value data attached to the event. */
-  payload?: Record<string, any>;
+  payload?: Record<string, unknown>;
   /** Links this event to a user interaction session (auto-set on clicks). */
   interactionId?: string;
 }

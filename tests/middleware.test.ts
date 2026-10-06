@@ -259,12 +259,11 @@ describe('Middleware & Request Interception', () => {
 
       const middleware = createRequestLoggerMiddleware({ colors: false });
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-      const callbacks: Record<string, Function> = {};
+      const callbacks: Record<string, (...args: unknown[]) => void> = {};
       const req = {
         url: '/__vprl_log',
         method: 'POST',
-        on: (event: string, cb: Function) => {
+        on: (event: string, cb: (...args: unknown[]) => void) => {
           callbacks[event] = cb;
         },
       } as any;
@@ -277,10 +276,11 @@ describe('Middleware & Request Interception', () => {
 
       middleware(req, res, vi.fn());
 
+      const newLocal = 'https://dog.ceo/api/breed/hound/images/random';
       callbacks['data']?.(
         JSON.stringify({
           method: 'GET',
-          url: 'https://dog.ceo/api/breed/hound/images/random',
+          url: newLocal,
           status: 200,
           duration: '120.5',
         }),
@@ -291,7 +291,7 @@ describe('Middleware & Request Interception', () => {
       expect(res.end).toHaveBeenCalledWith('ok');
       expect(infoSpy).toHaveBeenCalledTimes(1);
       expect(infoSpy.mock.calls[0][0]).toContain('[CLIENT] GET');
-      expect(infoSpy.mock.calls[0][0]).toContain('https://dog.ceo/api/breed/hound/images/random');
+      expect(infoSpy.mock.calls[0][0]).toContain(newLocal);
     });
   });
 });

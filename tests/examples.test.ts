@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi } from 'vitest';
 import { viteRequestLogger } from '../lib/index';
 import type { IncomingMessage, ServerResponse } from 'node:http';

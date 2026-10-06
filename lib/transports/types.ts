@@ -52,7 +52,7 @@ export interface LogEntry {
   interactionId?: string;
 
   /** Arbitrary structured context attached to the log entry. */
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
 }
 
 /**

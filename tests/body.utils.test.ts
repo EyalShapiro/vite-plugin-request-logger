@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect } from 'vitest';
 import { extractRequestBody, formatRequestBody } from '../lib/utils/body.utils';
 import { DEFAULT_OPTIONS } from '../lib/constants/default-options';
