@@ -11,7 +11,7 @@
  */
 export const runWhenIdle = (cb: () => void): void => {
   if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-    (window as any).requestIdleCallback(cb);
+    (window as unknown as { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(cb);
   } else {
     setTimeout(cb, 1);
   }
