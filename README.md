@@ -172,8 +172,9 @@ viteRequestLogger({
 | `colors`        | `boolean`                                  | `true`                          | Enable ANSI colors in terminal output.                                                  |
 | `timezone`      | `string \| ((d: Date) => string)`          | `'he-IL'`                       | BCP 47 locale for timestamp formatting (e.g. `'en-US'`) or a custom formatter function. |
 | `ignorePaths`   | `(string \| RegExp)[]`                     | `undefined`                     | Paths or patterns to exclude from logging (e.g. `['/health', /^\/assets\//]`).          |
-| `skipAssets`    | `boolean`                                  | `false`                         | Skip logging of static asset requests (`.js`, `.css`, images, fonts, …).                |
-| `silentOnError` | `boolean`                                  | `true`                          | Silently catch internal plugin errors to prevent dev server crashes.                    |
+| `skipAssets`        | `boolean`                                  | `false`                         | Skip logging of static asset requests (`.js`, `.css`, images, fonts, …).                |
+| `disableClientLogs` | `boolean`                                  | `false`                         | Disable injecting client-side browser console logging script.                           |
+| `silentOnError`     | `boolean`                                  | `true`                          | Silently catch internal plugin errors to prevent dev server crashes.                    |
 
 ---
 

@@ -1,13 +1,9 @@
 import axios from 'axios';
-import { API_ENDOPNIT } from './config';
-
-const axiosInstance = axios.create({
-  baseURL: API_ENDOPNIT,
-  headers: { 'Content-Type': 'application/json' },
-});
+import { API_ENDPOINT } from '../env.config';
+import { axiosInstance } from './axiosInstance';
 
 export async function postUser(body: Record<string, string>) {
-  const res = await axios.post(`${API_ENDOPNIT}/users`, body);
+  const res = await axios.post(`${API_ENDPOINT}/users`, body);
   return res.data;
 }
 
@@ -17,7 +13,7 @@ export async function postUserWithAxiosInstance(body: Record<string, string>) {
 }
 
 export async function postTasks(body: string) {
-  const res = await fetch(`${API_ENDOPNIT}/tasks`, {
+  const res = await fetch(`${API_ENDPOINT}/tasks`, {
     method: 'put',
     headers: { 'Content-Type': 'application/json' },
     body,
